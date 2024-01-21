@@ -1,0 +1,35 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.AttendanceApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.AttendanceApp" parent="Base.Theme.AttendanceApp" />
+
+
+    <style name="myTextInputLabel">
+        <!-- Customize your theme here. -->
+        <item name="colorControlActivated">@color/icon</item>
+        <item name="paddingStart">10dp</item>
+    </style>
+
+
+    <style name="Theme.AttendanceApp.Spinner" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/primary</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/primary</item>
+        <!-- Customize your theme here. -->
+        <item name="android:backgroundTint">#FFFFFF</item>
+
+        <item name="colorControlActivated">@color/icon</item>
+        <item name="android:actionMenuTextColor">@color/primary</item>
+    </style>
+</resources>

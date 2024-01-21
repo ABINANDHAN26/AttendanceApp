@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!-- Employee Name -->
+<!-- From Date -->
+<!-- To Date -->
+<!-- Leave Type -->
+<!-- Approve and Deny btn -->
+
+    <TextView
+        android:id="@+id/emp_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Abinandhan"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/from_date_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From: 01-01-2024"
+        android:layout_below="@id/emp_name_tv"
+        android:layout_marginTop="10dp"
+        android:textSize="14dp"
+        />
+
+    <TextView
+        android:id="@+id/to_date_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="To: 01-01-2024"
+        android:layout_below="@id/emp_name_tv"
+        android:layout_toEndOf="@id/from_date_tv"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:textSize="14dp"
+        />
+
+    <TextView
+        android:id="@+id/leave_type_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leave Type: Loss of pay"
+        android:layout_below="@id/from_date_tv"
+        android:layout_marginTop="10dp"
+        android:textSize="14dp"
+        />
+
+    <Button
+        android:id="@+id/leave_accept_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accept"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="3dp"
+        app:backgroundTint="@null"
+        android:background="@drawable/time_in_btn"
+        />
+    <Button
+        android:id="@+id/leave_deny_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Deny"
+        android:layout_below="@id/leave_accept_btn"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        app:backgroundTint="@null"
+        android:background="@drawable/time_out_btn"
+        />
+</RelativeLayout>
