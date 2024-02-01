@@ -1,6 +1,8 @@
 package com.quantum.attendanceapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
@@ -54,13 +56,24 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        forgotPwTv.setOnClickListener(v->{
+            startActivity(new Intent(LoginActivity.this, ForgotPwActivity.class));
+        });
+
     }
 
     private void signIn(String email, String password) {
+        SharedPreferences sharedPref = this.getSharedPreferences("pass", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor =sharedPref.edit();
+        editor.putString("pass",password);
+        editor.putString("email",email);
+        editor.apply();
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
-                    startActivity(new Intent(LoginActivity.this,SplashScreen.class));
-                    finish();
+                    if(task.isSuccessful()){
+                        startActivity(new Intent(LoginActivity.this, SplashScreen.class));
+                        finish();
+                    }
                 }).addOnFailureListener(e -> {
                     Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                 });

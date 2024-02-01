@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/emp_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Abinandhan"
+        android:textSize="18dp"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/date_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From: 01-01-2024"
+        android:layout_below="@id/emp_name_tv"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+
+    <TextView
+        android:id="@+id/time_in_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New time in:"
+        android:layout_below="@id/date_tv"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+    <TextView
+        android:id="@+id/time_out_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New time in:"
+        android:layout_below="@id/time_in_tv"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+
+    <TextView
+        android:id="@+id/reason_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Forgot to time out"
+        android:layout_below="@id/time_out_tv"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_alignParentEnd="true"
+    android:layout_centerVertical="true"
+    android:layout_marginEnd="10dp">
+    <Button
+        android:id="@+id/accept_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accept"
+        android:layout_gravity="center"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        app:backgroundTint="@null"
+        android:background="@drawable/time_in_btn"
+        />
+    <Button
+        android:id="@+id/deny_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:text="Deny"
+        app:backgroundTint="@null"
+        android:background="@drawable/time_out_btn"
+        />
+</LinearLayout>
+</RelativeLayout>

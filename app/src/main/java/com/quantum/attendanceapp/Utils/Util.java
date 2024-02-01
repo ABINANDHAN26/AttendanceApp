@@ -4,11 +4,26 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DecimalFormat;
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class Util {
@@ -16,13 +31,11 @@ public class Util {
     public static final String USER = "User";
     public static final String ID = "ID";
     public static final String MODE = "Mode";
-
-    private static final String DECI_FORMAT = "#.00";
-
     public static final int EDIT_MODE = 2;
     public static final int ADD_MODE = 1;
-
+    private static final String DECI_FORMAT = "#.00";
     private static boolean isNetworkAvail = true;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
         @Override
         public void onAvailable(@NonNull Network network) {
@@ -89,6 +102,14 @@ public class Util {
         return h + ":" + m;
     }
 
+    public static long compareDate(String date1, String date2) {
+        LocalDate localDate1 = LocalDate.parse(date1, formatter);
+        LocalDate localDate2 = LocalDate.parse(date2, formatter);
+        Instant instant1 = localDate1.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant instant2 = localDate2.atStartOfDay(ZoneOffset.UTC).toInstant();
+        return ChronoUnit.DAYS.between(instant1, instant2);
+    }
+
     public static String getFormattedString(Object s) {
         String format = "%.2f";
         try {
@@ -112,6 +133,10 @@ public class Util {
         return et.getText().toString().trim().isEmpty();
     }
 
+    public static String getValue(EditText et) {
+        return et.getText().toString();
+    }
+
     public static double getDoubleValue(EditText editText) {
         String text = editText.getText().toString().trim();
         try {
@@ -122,7 +147,53 @@ public class Util {
         }
     }
 
+    public static List<String> getDateList(String sd, String ed){
+        List<String> retList = new ArrayList<>();
 
+        LocalDate startDate = LocalDate.parse(sd, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        LocalDate endDate = LocalDate.parse(ed, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        List<LocalDate> dateList = new ArrayList<>();
+        LocalDate currentDate = startDate;
+        while (!currentDate.isAfter(endDate)) {
+            dateList.add(currentDate);
+            currentDate = currentDate.plusDays(1);
+        }
+        for (LocalDate date : dateList) {
+            retList.add(date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+        }
+        return retList;
+    }
+
+    public static boolean isGivenDay(int year, int month, int day, DayOfWeek givenDay ) {
+        LocalDate givenDate = LocalDate.of(year, month, day);
+        return givenDate.getDayOfWeek() == givenDay;
+    }
+
+
+    public static void sendPostRequest(String url, String requestData) throws IOException {
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+        con.setRequestMethod("POST");
+
+        con.setRequestProperty("Content-Type", "application/json");
+
+        con.setDoOutput(true);
+        con.setDoInput(true);
+
+        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+            byte[] postDataBytes = requestData.getBytes();
+            wr.write(postDataBytes);
+        }
+
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+        }
+    }
 
 
 

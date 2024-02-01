@@ -3,6 +3,7 @@ package com.quantum.attendanceapp.Utils;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -10,10 +11,15 @@ public class PickerUtils {
 
     public static void showDatePicker(Context context, OnDateSelectedListener listener) {
         // Use the current date as the default
-        showDatePicker(context, listener, Calendar.getInstance());
+        showDatePicker(context, listener, Calendar.getInstance(),0);
     }
 
-    public static void showDatePicker(Context context, OnDateSelectedListener listener, Calendar initialDate) {
+    public static void showDatePicker(Context context, OnDateSelectedListener listener,Calendar initialDate) {
+        // Use the current date as the default
+        showDatePicker(context, listener, initialDate,0);
+    }
+
+    public static void showDatePicker(Context context, OnDateSelectedListener listener, Calendar initialDate, long currentDate) {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 context, (view, year, month, dayOfMonth) -> {
             // Callback to the listener with selected date
@@ -25,7 +31,8 @@ public class PickerUtils {
                 initialDate.get(Calendar.MONTH),
                 initialDate.get(Calendar.DAY_OF_MONTH)
         );
-
+        if(currentDate > 0)
+            datePickerDialog.getDatePicker().setMinDate(currentDate-1000);
         datePickerDialog.show();
     }
 
@@ -40,7 +47,6 @@ public class PickerUtils {
     public static void showTimePicker(Context context, OnTimeSelectedListener listener, Calendar initialTime, boolean format) {
         int initialHour = initialTime.get(Calendar.HOUR_OF_DAY);
         int initialMinute = initialTime.get(Calendar.MINUTE);
-
         TimePickerDialog timePickerDialog = new TimePickerDialog(
                 context,
                 (view, hourOfDay, minute) -> {

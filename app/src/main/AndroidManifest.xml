@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,7 +13,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AttendanceApp"
+        android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name=".ForgotPwActivity"
+            android:exported="false" />
+        <activity
+            android:name=".admin.AddEmpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".employee.RegulariseAttendanceActivity"
+            android:exported="false" />
         <activity
             android:name=".employee.ApplyLeaveActivity"
             android:exported="false" />

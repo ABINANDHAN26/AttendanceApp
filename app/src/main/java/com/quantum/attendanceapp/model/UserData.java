@@ -1,13 +1,21 @@
 package com.quantum.attendanceapp.model;
 
-public class UserData {
-    String userName,empId,userId,userType,dob,doj,qualification,address,phone;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
+public class UserData implements Parcelable {
+    private String userName,emailId,empId,userId,userType,dob,doj,qualification,address,phone,branch;
+    private String reportingManagerName,reportingManagerId,reportingManagerEmail;
+    private String availableLeave,availedLeave;
+    private String weeklyOff;
     public UserData() {
     }
 
-    public UserData(String userName, String empId, String userId, String userType, String dob, String doj, String qualification, String address, String phone) {
+    public UserData(String userName, String emailId, String empId, String userId, String userType, String dob, String doj, String qualification, String address, String phone, String branch, String reportingManagerName, String reportingManagerId, String reportingManagerEmail, String availableLeave, String availedLeave, String weeklyOff) {
         this.userName = userName;
+        this.emailId = emailId;
         this.empId = empId;
         this.userId = userId;
         this.userType = userType;
@@ -16,7 +24,72 @@ public class UserData {
         this.qualification = qualification;
         this.address = address;
         this.phone = phone;
+        this.branch = branch;
+        this.reportingManagerName = reportingManagerName;
+        this.reportingManagerId = reportingManagerId;
+        this.reportingManagerEmail = reportingManagerEmail;
+        this.availableLeave = availableLeave;
+        this.availedLeave = availedLeave;
+        this.weeklyOff = weeklyOff;
     }
+
+    protected UserData(Parcel in) {
+        userName = in.readString();
+        emailId = in.readString();
+        empId = in.readString();
+        userId = in.readString();
+        userType = in.readString();
+        dob = in.readString();
+        doj = in.readString();
+        qualification = in.readString();
+        address = in.readString();
+        phone = in.readString();
+        branch = in.readString();
+        reportingManagerName = in.readString();
+        reportingManagerId = in.readString();
+        reportingManagerEmail = in.readString();
+        availableLeave = in.readString();
+        availedLeave = in.readString();
+        weeklyOff = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(userName);
+        dest.writeString(emailId);
+        dest.writeString(empId);
+        dest.writeString(userId);
+        dest.writeString(userType);
+        dest.writeString(dob);
+        dest.writeString(doj);
+        dest.writeString(qualification);
+        dest.writeString(address);
+        dest.writeString(phone);
+        dest.writeString(branch);
+        dest.writeString(reportingManagerName);
+        dest.writeString(reportingManagerId);
+        dest.writeString(reportingManagerEmail);
+        dest.writeString(availableLeave);
+        dest.writeString(availedLeave);
+        dest.writeString(weeklyOff);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<UserData> CREATOR = new Creator<UserData>() {
+        @Override
+        public UserData createFromParcel(Parcel in) {
+            return new UserData(in);
+        }
+
+        @Override
+        public UserData[] newArray(int size) {
+            return new UserData[size];
+        }
+    };
 
     public String getUserName() {
         return userName;
@@ -24,6 +97,14 @@ public class UserData {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getEmailId() {
+        return emailId;
+    }
+
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
     }
 
     public String getEmpId() {
@@ -89,4 +170,61 @@ public class UserData {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+    public String getReportingManagerName() {
+        return reportingManagerName;
+    }
+
+    public void setReportingManagerName(String reportingManagerName) {
+        this.reportingManagerName = reportingManagerName;
+    }
+
+    public String getReportingManagerId() {
+        return reportingManagerId;
+    }
+
+    public void setReportingManagerId(String reportingManagerId) {
+        this.reportingManagerId = reportingManagerId;
+    }
+
+    public String getReportingManagerEmail() {
+        return reportingManagerEmail;
+    }
+
+    public void setReportingManagerEmail(String reportingManagerEmail) {
+        this.reportingManagerEmail = reportingManagerEmail;
+    }
+
+    public String getAvailableLeave() {
+        return availableLeave;
+    }
+
+    public void setAvailableLeave(String availableLeave) {
+        this.availableLeave = availableLeave;
+    }
+
+    public String getAvailedLeave() {
+        return availedLeave;
+    }
+
+    public void setAvailedLeave(String availedLeave) {
+        this.availedLeave = availedLeave;
+    }
+
+    public String getWeeklyOff() {
+        return weeklyOff;
+    }
+
+    public void setWeeklyOff(String weeklyOff) {
+        this.weeklyOff = weeklyOff;
+    }
 }
+

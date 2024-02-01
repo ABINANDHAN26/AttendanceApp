@@ -9,11 +9,13 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.quantum.attendanceapp.model.CompanyData;
 import com.quantum.attendanceapp.model.UserData;
 
 public class SplashScreen extends AppCompatActivity {
 
     public static UserData userData;
+    public static CompanyData companyData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +32,22 @@ public class SplashScreen extends AppCompatActivity {
                 firebaseFirestore.collection("Data").document(uid).get()
                         .addOnSuccessListener(documentSnapshot -> {
                             userData = documentSnapshot.toObject(UserData.class);
-                            Intent intent = new Intent(SplashScreen.this, HomePage.class);
-                            startActivity(intent);
-                            finish();
+                            FirebaseFirestore.getInstance().collection("CompanyData").document("cbhsTYrU1xjRRLGPrPAc").get()
+                                    .addOnCompleteListener(task -> {
+                                        if (task.isSuccessful()) {
+                                            CompanyData object = task.getResult().toObject(CompanyData.class);
+                                            if (object != null) {
+                                                companyData = object;
+                                            }
+                                            Intent intent = new Intent(SplashScreen.this, HomePage.class);
+                                            intent.putExtra("UserData",userData);
+                                            intent.putExtra("CompanyData",companyData);
+                                            startActivity(intent);
+                                            finish();
+
+                                        }
+                                    });
+
                         }).addOnFailureListener(e -> {
                             Toast.makeText(this, "Can't find user", Toast.LENGTH_SHORT).show();
                         });

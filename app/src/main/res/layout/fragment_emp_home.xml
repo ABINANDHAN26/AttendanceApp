@@ -125,6 +125,16 @@
             android:background="@drawable/rounded_rectangle_btn"
             android:text="Apply Leave"
             app:backgroundTint="@null" />
+        <Button
+            android:id="@+id/reg_att_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_rectangle_btn"
+            android:text="Regularise Attendance"
+            app:backgroundTint="@null" />
 
 
     </LinearLayout>
