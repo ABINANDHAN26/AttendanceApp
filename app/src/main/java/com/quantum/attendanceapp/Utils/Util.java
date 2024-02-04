@@ -19,6 +19,7 @@ import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -164,9 +165,29 @@ public class Util {
         return retList;
     }
 
-    public static boolean isGivenDay(int year, int month, int day, DayOfWeek givenDay ) {
+    public static boolean isGivenDate(String d,String day){
+        String[] date = d.split("-");
+        int year = Integer.parseInt(date[0]);
+        int month = Integer.parseInt(date[1]);
+        int d1 = Integer.parseInt(date[2]);
+        return isGivenDay(year,month,d1,day);
+    }
+
+    public static boolean isGivenDay(int year, int month, int day, String givenDay ) {
+        DayOfWeek givenD = DayOfWeek.valueOf(givenDay);
         LocalDate givenDate = LocalDate.of(year, month, day);
-        return givenDate.getDayOfWeek() == givenDay;
+        return givenDate.getDayOfWeek() == givenD;
+    }
+
+    public static LocalDate stringToLocalDate(String d1) {
+        return LocalDate.parse(d1, formatter);
+    }
+
+    public static long stringToTimeStamp(String d1) {
+        LocalDate localDate = stringToLocalDate(d1);
+        LocalDateTime localDateTime = localDate.atStartOfDay();
+        Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
+        return instant.toEpochMilli();
     }
 
 

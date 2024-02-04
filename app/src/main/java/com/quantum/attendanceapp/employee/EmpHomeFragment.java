@@ -35,7 +35,7 @@ public class EmpHomeFragment extends Fragment {
 
     private FirebaseFirestore database;
     private EditText currTimeEt, currDateEt, inTimeEt, outTimeEt;
-    private Button timeBtn, viewCalBtn, applyLeaveBtn, regAttBtn;
+    private Button timeBtn, viewCalBtn, applyLeaveBtn, regAttBtn, cancelBtn;
     private List<TimeData> timeDataList;
     private TimeData timeData;
 
@@ -145,6 +145,10 @@ public class EmpHomeFragment extends Fragment {
 
         applyLeaveBtn.setOnClickListener(v -> {
             startActivity(new Intent(getContext(), ApplyLeaveActivity.class));
+        });
+
+        cancelBtn.setOnClickListener(v ->{
+            startActivity(new Intent(getContext(), CancelApplicationActivity.class));
         });
 
         final Handler handler = new Handler();
@@ -295,6 +299,7 @@ public class EmpHomeFragment extends Fragment {
         viewCalBtn = view.findViewById(R.id.view_calendar_btn);
         applyLeaveBtn = view.findViewById(R.id.apply_leave_btn);
         regAttBtn = view.findViewById(R.id.reg_att_btn);
+        cancelBtn = view.findViewById(R.id.cancel_btn);
 
         currTimeEt.setShowSoftInputOnFocus(false);
         currDateEt.setShowSoftInputOnFocus(false);

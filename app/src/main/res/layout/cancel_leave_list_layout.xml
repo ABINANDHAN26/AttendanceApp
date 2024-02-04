@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/tv_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="From: 01-01-2024"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+
+    <TextView
+        android:id="@+id/tv_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New time in:"
+        android:layout_below="@id/tv_1"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+    <TextView
+        android:id="@+id/tv_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New time in:"
+        android:layout_below="@id/tv_2"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+
+    <TextView
+        android:id="@+id/reason_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Forgot to time out"
+        android:layout_below="@id/tv_3"
+        android:layout_marginTop="2dp"
+        android:textSize="14dp"
+        />
+
+    <Button
+        android:id="@+id/cancel_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="20dp"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
+        android:text="Cancel"
+        app:backgroundTint="@null"
+        android:background="@drawable/time_out_btn"
+        />
+</RelativeLayout>

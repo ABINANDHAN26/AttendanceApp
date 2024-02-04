@@ -73,7 +73,8 @@ public class AdminHomeFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 LeaveData leaveData = document.toObject(LeaveData.class);
                                 if (!leaveData.isApproved())
-                                    leaveDataList.add(leaveData);
+                                    if(leaveData.getApproverName() == null || leaveData.getApproverName().trim().isEmpty())
+                                        leaveDataList.add(leaveData);
                             }
                             if(leaveDataList.size() <= 0) {
                                 leaveRecyclerView.setVisibility(View.GONE);

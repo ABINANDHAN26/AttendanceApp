@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.quantum.attendanceapp.R;
+import com.quantum.attendanceapp.SplashScreen;
 import com.quantum.attendanceapp.Utils.Util;
 import com.quantum.attendanceapp.admin.AdminHomeFragment;
 import com.quantum.attendanceapp.model.LeaveData;
@@ -107,69 +109,80 @@ public class LeaveListAdapter extends RecyclerView.Adapter<LeaveListAdapter.Leav
         String uid = FirebaseAuth.getInstance().getUid();
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         if(uid != null) {
-            Query query = database.collection("LeaveData").whereEqualTo("leaveId", leaveData.getLeaveId());
-            query.get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        database.collection("LeaveData").document(document.getId()).update("approved", leaveData.isApproved());
-                        database.collection("LeaveData").document(document.getId()).update("approvedDate", leaveData.getApprovedDate());
-                        database.collection("LeaveData").document(document.getId()).update("approverName", leaveData.getApproverName());
-                    }
+            FirebaseFirestore.getInstance().collection("Data").document(leaveData.getUserId()).get()
+                    .addOnCompleteListener(t -> {
+                       if(t.isSuccessful()){
+                           UserData empData = t.getResult().toObject(UserData.class);
+                           Query query = database.collection("LeaveData").whereEqualTo("leaveId", leaveData.getLeaveId());
+                           query.get().addOnCompleteListener(task -> {
+                               if (task.isSuccessful()) {
+                                   for (QueryDocumentSnapshot document : task.getResult()) {
+                                       database.collection("LeaveData").document(document.getId()).update("approved", leaveData.isApproved());
+                                       database.collection("LeaveData").document(document.getId()).update("approvedDate", leaveData.getApprovedDate());
+                                       database.collection("LeaveData").document(document.getId()).update("approverName", leaveData.getApproverName());
+                                   }
 
-                    String subject = "";
-                    String body = "";
-                    if(leaveData.isApproved()){
-                        subject = "Leave Application Request : Approved";
-                        body = "Your leave request from "+leaveData.getFromData()+" to "+leaveData.getToData()+" as been approved by "+leaveData.getApproverName()+".";
-                        FirebaseFirestore timeDataDb = FirebaseFirestore.getInstance();
-                        String fromDate = leaveData.getFromData();
-                        String toDate = leaveData.getToData();
-                        List<String> dateList = Util.getDateList(fromDate,toDate);
-                        for(String date:dateList){
-                            String monthYear = date.substring(date.indexOf("-") + 1);
-                            monthYear = monthYear.replace("-", "");
-                            TimeData timeData = new TimeData();
-                            timeData.setDate(date);
-                            timeData.setInTime("");
-                            timeData.setOutTime("");
-                            timeData.setInHrs("");
-                            timeData.setLeave(true);
-                            timeData.setLeaveType(leaveData.getLeaveType());
-                            timeDataDb.collection("TimeData").document(leaveData.getUserId()).collection(monthYear).document(date).set(timeData);
-                        }
+                                   String subject = "";
+                                   String body = "";
+                                   if(leaveData.isApproved()){
+                                       subject = "Leave Application Request : Approved";
+                                       body = "Your leave request from "+leaveData.getFromData()+" to "+leaveData.getToData()+" as been approved by "+leaveData.getApproverName()+".";
+                                       FirebaseFirestore timeDataDb = FirebaseFirestore.getInstance();
+                                       String fromDate = leaveData.getFromData();
+                                       String toDate = leaveData.getToData();
+                                       List<String> dateList = Util.getDateList(fromDate,toDate);
+                                       for(String date:dateList){
+                                           assert empData != null;
+                                           if(Util.isGivenDate(date, empData.getWeeklyOff())){
+                                               continue;
+                                           }
+                                           String monthYear = date.substring(date.indexOf("-") + 1);
+                                           monthYear = monthYear.replace("-", "");
+                                           TimeData timeData = new TimeData();
+                                           timeData.setDate(date);
+                                           timeData.setInTime("");
+                                           timeData.setOutTime("");
+                                           timeData.setInHrs("");
+                                           timeData.setLeave(true);
+                                           timeData.setLeaveType(leaveData.getLeaveType());
+                                           timeDataDb.collection("TimeData").document(leaveData.getUserId()).collection(monthYear).document(date).set(timeData);
+                                       }
 
-                    }else{
-                        subject = "Leave Application Request : Rejected";
-                        body = "Your leave request from "+leaveData.getFromData()+" to "+leaveData.getToData()+" as been rejected by "+leaveData.getApproverName()+".";
-                    }
+                                   }else{
+                                       subject = "Leave Application Request : Rejected";
+                                       body = "Your leave request from "+leaveData.getFromData()+" to "+leaveData.getToData()+" as been rejected by "+leaveData.getApproverName()+".";
+                                   }
 
-                    String finalSubject = subject;
-                    String finalBody = body;
-                    FirebaseFirestore.getInstance().collection("Data").document(leaveData.getUserId()).get()
-                            .addOnCompleteListener(task1 -> {
-                                if(task1.isSuccessful()){
-                                    DocumentSnapshot result = task1.getResult();
-                                    UserData object = result.toObject(UserData.class);
-                                    String emailId = "abinandhan952@gmail.com";
-                                    if(object!=null)
-                                        emailId = object.getEmailId();
-                                    Map<String, String> requestData = new HashMap<>();
-                                    requestData.put("email", emailId);
-                                    requestData.put("subject", finalSubject);
-                                    requestData.put("body", finalBody);
-                                    Gson gson = new Gson();
-                                    String jsonData = gson.toJson(requestData);
-                                    try {
-                                        Util.sendPostRequest("http://192.168.245.165:5000/send_email", jsonData);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            });
+                                   String finalSubject = subject;
+                                   String finalBody = body;
+                                   FirebaseFirestore.getInstance().collection("Data").document(leaveData.getUserId()).get()
+                                           .addOnCompleteListener(task1 -> {
+                                               if(task1.isSuccessful()){
+                                                   DocumentSnapshot result = task1.getResult();
+                                                   UserData object = result.toObject(UserData.class);
+                                                   String emailId = "abinandhan952@gmail.com";
+                                                   if(object!=null)
+                                                       emailId = object.getEmailId();
+                                                   Map<String, String> requestData = new HashMap<>();
+                                                   requestData.put("email", emailId);
+                                                   requestData.put("subject", finalSubject);
+                                                   requestData.put("body", finalBody);
+                                                   Gson gson = new Gson();
+                                                   String jsonData = gson.toJson(requestData);
+                                                   try {
+                                                       Util.sendPostRequest("http://192.168.245.165:5000/send_email", jsonData);
+                                                   } catch (IOException e) {
+                                                       e.printStackTrace();
+                                                   }
+                                               }
+                                           });
 
 
-                }
-            });
+                               }
+                           });
+
+                       }
+                    });
 
         }
     }

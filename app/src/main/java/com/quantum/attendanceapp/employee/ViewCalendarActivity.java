@@ -74,7 +74,7 @@ public class ViewCalendarActivity extends AppCompatActivity {
         super.onResume();
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
             month += 1;
-            boolean isWeekOff = Util.isGivenDay(year, month, dayOfMonth, DayOfWeek.valueOf(weeklyOff));
+            boolean isWeekOff = Util.isGivenDay(year, month, dayOfMonth, weeklyOff);
             String m = String.valueOf(month);
             if (month < 10) {
                 m = "0" + month;

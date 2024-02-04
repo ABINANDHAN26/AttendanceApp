@@ -1,5 +1,7 @@
 package com.quantum.attendanceapp.employee;
 
+import static com.quantum.attendanceapp.SplashScreen.*;
+
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,13 +17,14 @@ import com.quantum.attendanceapp.Utils.Util;
 import com.quantum.attendanceapp.model.RegulariseData;
 
 import java.util.Calendar;
+import java.util.List;
 
 public class RegulariseAttendanceActivity extends AppCompatActivity {
 
     private EditText newInEt, newOutEt, dateEt, reasonEt;
     private Button submitBtn;
 
-    private String selDate, selInTime, selOutTime, reason;
+    private String selDate = "", selInTime = "", selOutTime = "", reason = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,34 +44,53 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
 
                 PickerUtils.showDatePicker(RegulariseAttendanceActivity.this, ((year, month, day) -> {
                     selDate = Util.getDisplayDate(year, month, day);
+                    boolean isWeekOff = Util.isGivenDay(year, month, day, userData.getWeeklyOff());
+                    if(isWeekOff){
+                        Toast.makeText(this, "Selected date is your weekly off", Toast.LENGTH_SHORT).show();
+                    }
                     dateEt.setText(selDate);
+
                 }), calendar);
             }
         });
 
         newInEt.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
+                newInEt.clearFocus();
                 Calendar calendar = Calendar.getInstance();
                 PickerUtils.showTimePicker(RegulariseAttendanceActivity.this, ((hour, min) -> {
                     selInTime = Util.getDisplayTime(hour, min);
+                    if (!selOutTime.trim().isEmpty()) {
+                        if (selInTime.equals(selOutTime)) {
+                            Toast.makeText(this, "In and Out time can't be same", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
                     newInEt.setText(selInTime);
-                }), calendar,true);
+                }), calendar, true);
             }
         });
 
         newOutEt.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
+                newOutEt.clearFocus();
                 Calendar calendar = Calendar.getInstance();
                 PickerUtils.showTimePicker(RegulariseAttendanceActivity.this, ((hour, min) -> {
                     selOutTime = Util.getDisplayTime(hour, min);
+                    if (!selInTime.trim().isEmpty()) {
+                        if (selOutTime.equals(selInTime)) {
+                            Toast.makeText(this, "In and Out time can't be same", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
                     newOutEt.setText(selOutTime);
-                }), calendar,true);
+                }), calendar, true);
             }
         });
 
         submitBtn.setOnClickListener(v -> {
-            reason = reasonEt.getText().toString();
-            if (reason.trim().isEmpty()) {
+            reason = reasonEt.getText().toString().trim();
+            if (reason.isEmpty()) {
                 reasonEt.setError("Enter reason");
                 reasonEt.requestFocus();
                 return;
@@ -93,8 +115,8 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
             regulariseData.setNewInTime(selInTime);
             regulariseData.setNewOutTime(selOutTime);
             regulariseData.setReason(reason);
-            regulariseData.setUserName(SplashScreen.userData.getUserName());
-            String uid = SplashScreen.userData.getUserId();
+            regulariseData.setUserName(userData.getUserName());
+            String uid = userData.getUserId();
             regulariseData.setUid(uid);
             regulariseData.setId(Util.generateId(selDate, uid));
             regulariseData.setAcceptedBy("");
@@ -107,12 +129,30 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
 
     private void submitRequest(RegulariseData regulariseData) {
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        database.collection("RegulariseData").document().set(regulariseData).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Toast.makeText(this, "Request sended", Toast.LENGTH_SHORT).show();
-                sleepAndFinish();
-            }
-        });
+
+        FirebaseFirestore.getInstance().collection("RegulariseData").get().
+                addOnCompleteListener(task -> {
+                    boolean anyMatch = false;
+                    List<RegulariseData> objects = task.getResult().toObjects(RegulariseData.class);
+                    for (RegulariseData rd : objects) {
+                        if (rd.getDate().equals(regulariseData.getDate())) {
+                            anyMatch = true;
+                            Toast.makeText(this, "You applied regularize for this date's", Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                    }
+                    if (!anyMatch) {
+                        database.collection("RegulariseData").document().set(regulariseData).addOnCompleteListener(t -> {
+                            if (t.isSuccessful()) {
+                                Toast.makeText(this, "Request sent", Toast.LENGTH_SHORT).show();
+                                sleepAndFinish();
+                            }
+                        });
+                    }
+
+                });
+
+
     }
 
     private void sleepAndFinish() {

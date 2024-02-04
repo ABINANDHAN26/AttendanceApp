@@ -3,7 +3,7 @@ package com.quantum.attendanceapp.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.NonNull;
+import java.time.DayOfWeek;
 
 public class UserData implements Parcelable {
     private String userName,emailId,empId,userId,userType,dob,doj,qualification,address,phone,branch;

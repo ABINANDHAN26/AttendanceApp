@@ -81,6 +81,11 @@ public class AddEmpActivity extends AppCompatActivity {
                 empBranchSpinner.requestFocus();
                 return;
             }
+            if (Util.checkEt(weeklyOffSpinner)){
+                weeklyOffSpinner.setError("Select employee weekly off!!");
+                weeklyOffSpinner.requestFocus();
+                return;
+            }
 
             UserData userData = new UserData();
             userData.setUserName(getValue(empNameEt));
@@ -92,7 +97,9 @@ public class AddEmpActivity extends AppCompatActivity {
             userData.setAddress(getValue(empAddressEt));
             userData.setPhone(getValue(empPhoneEt));
             String branch = getValue(empBranchSpinner);
+            String weeklyOff = getValue(weeklyOffSpinner);
             userData.setBranch(branch);
+            userData.setWeeklyOff(weeklyOff);
             List<String> managerDetails = SplashScreen.companyData.getBranchManagerList().get(branch);
             userData.setReportingManagerName(managerDetails.get(0));
             userData.setReportingManagerId(managerDetails.get(1));
@@ -167,6 +174,16 @@ public class AddEmpActivity extends AppCompatActivity {
         empBranchSpinner.setAdapter(arrayAdapter);
     }
 
+    private void setWeeklySpinner() {
+
+        String[] expenseArray = getResources().getStringArray(R.array.weekly_off);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AddEmpActivity.this, R.layout.drop_down_item, expenseArray);
+        arrayAdapter.notifyDataSetChanged();
+        weeklyOffSpinner.setAdapter(arrayAdapter);
+    }
+
+
+
     private void findViews() {
         empNameEt = findViewById(R.id.emp_name_et);
         empEmailEt = findViewById(R.id.emp_email_et);
@@ -177,6 +194,7 @@ public class AddEmpActivity extends AppCompatActivity {
         empPhoneEt = findViewById(R.id.emp_phone_et);
 
         empBranchSpinner = findViewById(R.id.branch_spinner);
+        weeklyOffSpinner = findViewById(R.id.weekly_spinner);
 
         addBtn = findViewById(R.id.add_btn);
     }

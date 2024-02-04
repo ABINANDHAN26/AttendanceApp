@@ -1,6 +1,7 @@
 package com.quantum.attendanceapp.employee;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -95,19 +96,25 @@ public class ApplyLeaveActivity extends AppCompatActivity {
         toDateEt.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 toDateEt.clearFocus();
+                String fd = fromDateEt.getText().toString().trim();
+                if(fd.isEmpty()){
+                    Toast.makeText(this, "Select From date first", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Calendar calendar = Calendar.getInstance();
+                long minDate = Util.stringToTimeStamp(fd);
                 PickerUtils.showDatePicker(ApplyLeaveActivity.this, ((year, month, day) -> {
                     String selectedDate = Util.getDisplayDate(year, month, day);
-                    String fd = fromDateEt.getText().toString();
-                    if (!fd.trim().isEmpty()) {
-                        long l = Util.compareDate(fd, selectedDate);
-                        if (l < 0) {
-                            toDateEt.setError("To date can't be lesser than From date");
-                            return;
-                        }
+
+                    long l = Util.compareDate(fd, selectedDate);
+                    if (l < 0) {
+                        Toast.makeText(this, "To date can't be lesser than From date", Toast.LENGTH_LONG).show();
+                        toDateEt.setError("To date can't be lesser than From date");
+                        return;
                     }
                     toDateEt.setText(selectedDate);
-                }), calendar, System.currentTimeMillis());
+                }), calendar, minDate);
             }
         });
 
@@ -125,33 +132,32 @@ public class ApplyLeaveActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             boolean anyMatch = false;
                             List<LeaveData> objects = task.getResult().toObjects(LeaveData.class);
+                            outerloop:
                             for (LeaveData ld : objects) {
                                 if (ld.getUserId().equals(uid)) {
                                     List<String> previousDateList = Util.getDateList(ld.getFromData(), ld.getToData());
                                     List<String> currentDateList = Util.getDateList(leaveData.getFromData(), leaveData.getToData());
+
                                     for (String preDate : previousDateList) {
                                         if (currentDateList.contains(preDate)) {
                                             Toast.makeText(ApplyLeaveActivity.this, "You applied leave for this date's", Toast.LENGTH_LONG).show();
                                             anyMatch = true;
-                                            break;
+                                            break outerloop;
                                         }
                                     }
-                                    if (!anyMatch) {
-                                        database.collection("LeaveData").document().set(leaveData)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            Toast.makeText(ApplyLeaveActivity.this, "Leave Applied", Toast.LENGTH_SHORT).show();
-                                                            finish();
-                                                        } else {
-                                                            Toast.makeText(ApplyLeaveActivity.this, "Can't apply leave", Toast.LENGTH_SHORT).show();
-                                                            finish();
-                                                        }
-                                                    }
-                                                });
-                                    }
                                 }
+                            }
+                            if (!anyMatch) {
+                                database.collection("LeaveData").document().set(leaveData)
+                                        .addOnCompleteListener(task1 -> {
+                                            if (task1.isSuccessful()) {
+                                                Toast.makeText(ApplyLeaveActivity.this, "Leave Applied", Toast.LENGTH_SHORT).show();
+                                                finish();
+                                            } else {
+                                                Toast.makeText(ApplyLeaveActivity.this, "Can't apply leave", Toast.LENGTH_SHORT).show();
+                                                finish();
+                                            }
+                                        });
                             }
                         }
                     });
