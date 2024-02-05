@@ -25,9 +25,11 @@ public class SplashScreen extends AppCompatActivity {
         if(mAuth.getCurrentUser() != null){
             String uid = mAuth.getUid();
             if(uid == null){
+                mAuth.signOut();
                 startActivity(new Intent(SplashScreen.this, LoginActivity.class));
                 finish();
             }else {
+                if(Util.isLoginSessionValid()){
                 FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
                 firebaseFirestore.collection("Data").document(uid).get()
                         .addOnSuccessListener(documentSnapshot -> {
@@ -51,7 +53,10 @@ public class SplashScreen extends AppCompatActivity {
                         }).addOnFailureListener(e -> {
                             Toast.makeText(this, "Can't find user", Toast.LENGTH_SHORT).show();
                         });
-
+        }else{
+                mAuth.signOut();
+                 startActivity(new Intent(SplashScreen.this, LoginActivity.class));
+                finish();
             }
         }else{
             startActivity(new Intent(SplashScreen.this, LoginActivity.class));
