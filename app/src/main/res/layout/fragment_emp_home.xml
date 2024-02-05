@@ -142,6 +142,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginHorizontal="30dp"
             android:layout_marginTop="10dp"
+            android:visibility="gone"
             android:background="@drawable/rounded_rectangle_btn"
             android:text="Cancel"
             app:backgroundTint="@null" />

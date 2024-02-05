@@ -133,9 +133,9 @@ public class LeaveListAdapter extends RecyclerView.Adapter<LeaveListAdapter.Leav
                                        List<String> dateList = Util.getDateList(fromDate,toDate);
                                        for(String date:dateList){
                                            assert empData != null;
-                                           if(Util.isGivenDate(date, empData.getWeeklyOff())){
-                                               continue;
-                                           }
+//                                           if(Util.isGivenDate(date, empData.getWeeklyOff())){
+//                                               continue;
+//                                           }
                                            String monthYear = date.substring(date.indexOf("-") + 1);
                                            monthYear = monthYear.replace("-", "");
                                            TimeData timeData = new TimeData();
@@ -153,7 +153,7 @@ public class LeaveListAdapter extends RecyclerView.Adapter<LeaveListAdapter.Leav
                                        body = "Your leave request from "+leaveData.getFromData()+" to "+leaveData.getToData()+" as been rejected by "+leaveData.getApproverName()+".";
                                    }
 
-                                   String finalSubject = subject;
+                                 /*  String finalSubject = subject;
                                    String finalBody = body;
                                    FirebaseFirestore.getInstance().collection("Data").document(leaveData.getUserId()).get()
                                            .addOnCompleteListener(task1 -> {
@@ -176,7 +176,7 @@ public class LeaveListAdapter extends RecyclerView.Adapter<LeaveListAdapter.Leav
                                                    }
                                                }
                                            });
-
+*/
 
                                }
                            });

@@ -1,5 +1,9 @@
 package com.quantum.attendanceapp.Utils;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -36,6 +40,7 @@ public class Util {
     public static final int ADD_MODE = 1;
     private static final String DECI_FORMAT = "#.00";
     private static boolean isNetworkAvail = true;
+    private static final long _24Hrs = 1000 * 60 * 60 * 24;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private static final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
         @Override
@@ -174,6 +179,7 @@ public class Util {
     }
 
     public static boolean isGivenDay(int year, int month, int day, String givenDay ) {
+        givenDay = givenDay.toUpperCase();
         DayOfWeek givenD = DayOfWeek.valueOf(givenDay);
         LocalDate givenDate = LocalDate.of(year, month, day);
         return givenDate.getDayOfWeek() == givenD;
@@ -214,6 +220,16 @@ public class Util {
                 response.append(inputLine);
             }
         }
+    }
+
+    public static boolean isLoginSessionValid(Context context){
+        SharedPreferences sharedPref = context.getSharedPreferences("Login_Details", MODE_PRIVATE);
+        long loginTime = sharedPref.getLong("loginTime", 0);
+        long currentTime = System.currentTimeMillis();
+        long diff = currentTime - loginTime;
+        if(diff >= _24Hrs)
+            return false;
+        return true;
     }
 
 
