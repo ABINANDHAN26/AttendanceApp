@@ -44,6 +44,7 @@ public class AddEmpActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setBranchSpinner();
+        setWeeklySpinner();
         addBtn.setOnClickListener(v -> {
             if (Util.checkEt(empNameEt)) {
                 empNameEt.setError("Enter employee name!!");
@@ -154,7 +155,7 @@ public class AddEmpActivity extends AppCompatActivity {
     private void signIn() {
         try {
             FirebaseAuth mAuth = FirebaseAuth.getInstance();
-            SharedPreferences sharedPref = this.getSharedPreferences("pass", Context.MODE_PRIVATE);
+            SharedPreferences sharedPref = this.getSharedPreferences("Login_Details", Context.MODE_PRIVATE);
             String pass = sharedPref.getString("pass", "");
             String email = sharedPref.getString("email", "");
             mAuth.signInWithEmailAndPassword(email, pass)

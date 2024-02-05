@@ -63,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signIn(String email, String password) {
-        SharedPreferences sharedPref = this.getSharedPreferences("pass", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = this.getSharedPreferences("Login_Details", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor =sharedPref.edit();
         editor.putString("pass",password);
         editor.putString("email",email);
@@ -71,6 +71,8 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
+                        editor.putLong("loginTime",System.currentTimeMillis());
+                        editor.commit();
                         startActivity(new Intent(LoginActivity.this, SplashScreen.class));
                         finish();
                     }
