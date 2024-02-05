@@ -36,6 +36,7 @@ public class Util {
     private static final String DECI_FORMAT = "#.00";
     private static boolean isNetworkAvail = true;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final long _24Hrs = 1000 * 60 * 60 * 24;
     private static final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
         @Override
         public void onAvailable(@NonNull Network network) {
@@ -195,6 +196,13 @@ public class Util {
         }
     }
 
-
-
+    public static boolean isLoginSessionValid(){
+        SharedPreferences sharedPref = context.getSharedPreferences("Login_Details", MODE_PRIVATE);
+        long loginTime = sharedPref.getLong("loginTime", 0);
+        long currentTime = System.currentTimeMillis();
+        long diff = currentTime - loginTime;
+        if(diff >= _24Hrs)
+            return false;
+        return true;
+    }
 }
