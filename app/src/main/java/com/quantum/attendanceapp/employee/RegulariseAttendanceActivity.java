@@ -23,6 +23,7 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
 
     private EditText newInEt, newOutEt, dateEt, reasonEt;
     private Button submitBtn;
+    private ProgressBar progressBar;
 
     private String selDate = "", selInTime = "", selOutTime = "", reason = "";
 
@@ -110,6 +111,7 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
                 reasonEt.requestFocus();
                 return;
             }
+            progressBar.setVisibility(View.VISIBLE);
             RegulariseData regulariseData = new RegulariseData();
             regulariseData.setDate(selDate);
             regulariseData.setNewInTime(selInTime);
@@ -137,6 +139,7 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
                     for (RegulariseData rd : objects) {
                         if (rd.getDate().equals(regulariseData.getDate())) {
                             anyMatch = true;
+                            progressBar.setVisibility(View.GONE);
                             Toast.makeText(this, "You applied regularize for this date's", Toast.LENGTH_SHORT).show();
                             break;
                         }
@@ -144,6 +147,7 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
                     if (!anyMatch) {
                         database.collection("RegulariseData").document().set(regulariseData).addOnCompleteListener(t -> {
                             if (t.isSuccessful()) {
+                                progressBar.setVisibility(View.GONE);
                                 Toast.makeText(this, "Request sent", Toast.LENGTH_SHORT).show();
                                 sleepAndFinish();
                             }
@@ -172,6 +176,8 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
         reasonEt = findViewById(R.id.reason_et);
 
         submitBtn = findViewById(R.id.submit_btn);
+
+        progressBar = findViewById(R.id.progressBar);
 
         newInEt.setShowSoftInputOnFocus(false);
         newOutEt.setShowSoftInputOnFocus(false);
