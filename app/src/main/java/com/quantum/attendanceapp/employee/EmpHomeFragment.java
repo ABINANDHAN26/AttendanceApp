@@ -56,6 +56,7 @@ public class EmpHomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_emp_home, container, false);
         findViews(view);
+        getLocationPermission();
         database = FirebaseFirestore.getInstance();
         return view;
     }
@@ -102,29 +103,39 @@ public class EmpHomeFragment extends Fragment {
                 @Override
                 public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                     super.onAuthenticationSucceeded(result);
-                    if (timeData == null)
-                        timeData = new TimeData();
-                    String s = timeBtn.getText().toString();
-                    if (timeData != null) {
-                        if (s.equals("Time In")) {
-                            timeBtn.setText("Time Out");
-                            timeBtn.setBackground(getResources().getDrawable(R.drawable.time_out_btn));
-                            String inTime = currTimeEt.getText().toString();
-                            inTimeEt.setText(inTime);
-                            timeData.setInTime(inTime);
-                        } else if (s.equals("Time Out")) {
-                            timeBtn.setVisibility(View.INVISIBLE);
-                            timeBtn.setEnabled(false);
-                            String outTime = currTimeEt.getText().toString();
-                            outTimeEt.setText(outTime);
-                            timeData.setOutTime(outTime);
-                            String inTime = timeData.getInTime();
-                            timeData.setInHrs(getInHrs(inTime, outTime));
+                    FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            		fusedLocationClient.getCurrentLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                if (timeData == null)
+                                    timeData = new TimeData();
+                                String s = timeBtn.getText().toString();
+                                if (timeData != null) {
+                                    if (s.equals("Time In")) {
+                                        timeBtn.setText("Time Out");
+                                        timeBtn.setBackground(getResources().getDrawable(R.drawable.time_out_btn));
+                                        String inTime = currTimeEt.getText().toString();
+                                        inTimeEt.setText(inTime);
+                                        timeData.setInTime(inTime);
+                                    } else if (s.equals("Time Out")) {
+                                        timeBtn.setVisibility(View.INVISIBLE);
+                                        timeBtn.setEnabled(false);
+                                        String outTime = currTimeEt.getText().toString();
+                                        outTimeEt.setText(outTime);
+                                        timeData.setOutTime(outTime);
+                                        String inTime = timeData.getInTime();
+                                        timeData.setInHrs(getInHrs(inTime, outTime));
+                                    }
+                                    if (timeData.getDate() == null)
+                                        timeData.setDate(getDate());
+                                    updateData(timeData, timeData.getDate());
+                                }
+                            }
                         }
-                        if (timeData.getDate() == null)
-                            timeData.setDate(getDate());
-                        updateData(timeData, timeData.getDate());
-                    }
+                    });
+
 
                 }
                 @Override
@@ -288,6 +299,36 @@ public class EmpHomeFragment extends Fragment {
         } catch (Exception e) {
         }
         return value;
+    }
+
+    private void getLocationPermission(){
+            ActivityResultLauncher<String[]> locationPermissionRequest =
+            registerForActivityResult(new ActivityResultContracts
+                .RequestMultiplePermissions(), result -> {
+                    Boolean fineLocationGranted = result.getOrDefault(
+                            Manifest.permission.ACCESS_FINE_LOCATION, false);
+                    Boolean coarseLocationGranted = result.getOrDefault(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,false);
+                    if (fineLocationGranted != null && fineLocationGranted) {
+                        // Precise location access granted.
+                    } else if (coarseLocationGranted != null && coarseLocationGranted) {
+                        // Only approximate location access granted.
+                    } else {
+                        Toast.makeText(getContext(),"Location permission is required",Toast.LENGHT_LONG).show();
+                        getLocationPermission();
+                    }
+                }
+            );
+        
+        // ...
+        
+        // Before you perform the actual permission request, check whether your app
+        // already has the permissions, and whether your app needs to show a permission
+        // rationale dialog. For more details, see Request permissions.
+        locationPermissionRequest.launch(new String[] {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        });
     }
 
     private void findViews(View view) {
