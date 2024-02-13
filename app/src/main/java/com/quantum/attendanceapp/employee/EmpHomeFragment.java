@@ -56,6 +56,7 @@ public class EmpHomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_emp_home, container, false);
         findViews(view);
+        getLocationPermission();
         database = FirebaseFirestore.getInstance();
         return view;
     }
@@ -298,6 +299,36 @@ public class EmpHomeFragment extends Fragment {
         } catch (Exception e) {
         }
         return value;
+    }
+
+    private void getLocationPermission(){
+            ActivityResultLauncher<String[]> locationPermissionRequest =
+            registerForActivityResult(new ActivityResultContracts
+                .RequestMultiplePermissions(), result -> {
+                    Boolean fineLocationGranted = result.getOrDefault(
+                            Manifest.permission.ACCESS_FINE_LOCATION, false);
+                    Boolean coarseLocationGranted = result.getOrDefault(
+                            Manifest.permission.ACCESS_COARSE_LOCATION,false);
+                    if (fineLocationGranted != null && fineLocationGranted) {
+                        // Precise location access granted.
+                    } else if (coarseLocationGranted != null && coarseLocationGranted) {
+                        // Only approximate location access granted.
+                    } else {
+                        Toast.makeText(getContext(),"Location permission is required",Toast.LENGHT_LONG).show();
+                        getLocationPermission();
+                    }
+                }
+            );
+        
+        // ...
+        
+        // Before you perform the actual permission request, check whether your app
+        // already has the permissions, and whether your app needs to show a permission
+        // rationale dialog. For more details, see Request permissions.
+        locationPermissionRequest.launch(new String[] {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        });
     }
 
     private void findViews(View view) {
