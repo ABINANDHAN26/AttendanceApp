@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.gson.Gson;
 import com.quantum.attendanceapp.R;
 import com.quantum.attendanceapp.adapters.AttendanceListAdapter;
 import com.quantum.attendanceapp.adapters.LeaveListAdapter;
@@ -22,7 +23,23 @@ import com.quantum.attendanceapp.model.LeaveData;
 import com.quantum.attendanceapp.model.RegulariseData;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class AdminHomeFragment extends Fragment {
 
@@ -60,6 +77,51 @@ public class AdminHomeFragment extends Fragment {
         getRegulariseData();
 
         addEmpBtn.setOnClickListener(v -> startActivity(new Intent(getActivity(),AddEmpActivity.class)));
+
+        genRepBtn.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Still developing", Toast.LENGTH_SHORT).show();
+            if(true)
+                return;
+            getTimeData();
+            try {
+                Gson gson = new Gson();
+//                String json = gson.toJson(myObject);
+                String json= "";
+                JSONArray jsonArray = new JSONArray(json);
+                XSSFWorkbook workbook = new XSSFWorkbook();
+                XSSFSheet sheet = workbook.createSheet("Data");
+
+                Row headerRow = sheet.createRow(0);
+                JSONObject firstObject = jsonArray.getJSONObject(0);
+                int cellIndex = 0;
+                for (Iterator<String> iterator = firstObject.keys(); iterator.hasNext(); ) {
+                    String key = iterator.next();
+                    Cell cell = headerRow.createCell(cellIndex++);
+                    cell.setCellValue(key);
+                }
+                int rowIndex = 1;
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    Row row = sheet.createRow(rowIndex++);
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    cellIndex = 0;
+                    for (Iterator<String> iterator = jsonObject.keys(); iterator.hasNext(); ) {
+                        String key = iterator.next();
+                        Cell cell = row.createCell(cellIndex++);
+                        cell.setCellValue(jsonObject.getString(key));
+                    }
+                }
+
+                // Save workbook to file
+                String fileName = "AttendanceReport.xlsx";
+                FileOutputStream fileOut = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/" + fileName);
+                workbook.write(fileOut);
+                fileOut.close();
+                workbook.close();
+                Log.d("ExcelUtils", "Excel file saved to: " + fileName);
+            } catch (JSONException | IOException e) {
+                e.printStackTrace();
+            }
+        });
 
     }
 
@@ -131,7 +193,9 @@ public class AdminHomeFragment extends Fragment {
         }
 
     }
+    private void getTimeData(){
 
+    }
 
 
     private void findViews(View view) {

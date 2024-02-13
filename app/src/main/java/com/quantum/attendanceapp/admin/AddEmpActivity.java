@@ -6,10 +6,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +33,8 @@ public class AddEmpActivity extends AppCompatActivity {
     private EditText empNameEt, empEmailEt, empDojEt, empDobEt, empQualEt, empAddressEt, empPhoneEt;
     private AutoCompleteTextView weeklyOffSpinner, empBranchSpinner;
     private Button addBtn;
+
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +91,7 @@ public class AddEmpActivity extends AppCompatActivity {
                 weeklyOffSpinner.requestFocus();
                 return;
             }
-
+            progressBar.setVisibility(View.VISIBLE);
             UserData userData = new UserData();
             userData.setUserName(getValue(empNameEt));
             userData.setEmailId(getValue(empEmailEt));
@@ -134,6 +138,7 @@ public class AddEmpActivity extends AppCompatActivity {
                                         database.collection("Data").document(empuid).set(userData)
                                                 .addOnCompleteListener(task11 -> {
                                                     if (task11.isSuccessful()) {
+                                                        Toast.makeText(this, "Employee added successfully", Toast.LENGTH_SHORT).show();
                                                         mAuth.signOut();
                                                         signIn();
                                                     }
@@ -143,6 +148,7 @@ public class AddEmpActivity extends AppCompatActivity {
                             });
 
                         } else {
+                            progressBar.setVisibility(View.GONE);
                             Toast.makeText(this, "Can't add user", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -160,6 +166,7 @@ public class AddEmpActivity extends AppCompatActivity {
             String email = sharedPref.getString("email", "");
             mAuth.signInWithEmailAndPassword(email, pass)
                     .addOnCompleteListener(task -> {
+                        progressBar.setVisibility(View.GONE);
                         finish();
                     });
         } catch (Exception e) {
@@ -198,5 +205,7 @@ public class AddEmpActivity extends AppCompatActivity {
         weeklyOffSpinner = findViewById(R.id.weekly_spinner);
 
         addBtn = findViewById(R.id.add_btn);
+
+        progressBar = findViewById(R.id.progress_bar);
     }
 }

@@ -1,6 +1,9 @@
 package com.quantum.attendanceapp.employee;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -11,16 +14,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.quantum.attendanceapp.R;
+import com.quantum.attendanceapp.Utils.Util;
 import com.quantum.attendanceapp.model.TimeData;
 
 import java.text.SimpleDateFormat;
@@ -64,89 +74,18 @@ public class EmpHomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
         verifyPreviousCheckIn();
         isCheckInNeed();
         currDateEt.setText(getDate());
 
         timeBtn.setOnClickListener(v -> {
-            BiometricManager biometricManager = BiometricManager.from(getActivity().getApplicationContext());
-            switch (biometricManager.canAuthenticate()) {
-                case BiometricManager.BIOMETRIC_SUCCESS:
-                    Log.i("TAG", "Fingerprint: BIOMETRIC_SUCCESS");
-                    break;
-
-                // this means that the device doesn't have fingerprint sensor
-                case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                    Log.i("TAG", "Fingerprint: BIOMETRIC_ERROR_NO_HARDWARE");
-                    break;
-
-                // this means that biometric sensor is not available
-                case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                    Log.i("TAG", "Fingerprint: BIOMETRIC_ERROR_HW_UNAVAILABLE");
-                    break;
-
-                // this means that the device doesn't contain your fingerprint
-                case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                    Log.i("TAG", "Fingerprint: BIOMETRIC_ERROR_NONE_ENROLLED");
-                    break;
+            if (!Util.isGpsEnabled(getContext())) {
+                Toast.makeText(getContext(), "Enable Location first", Toast.LENGTH_SHORT).show();
+                return;
             }
+            authenticateBio();
 
-            Executor executor = ContextCompat.getMainExecutor(getActivity());
-            // this will give us result of AUTHENTICATION
-            final BiometricPrompt biometricPrompt = new BiometricPrompt(getActivity(), executor, new BiometricPrompt.AuthenticationCallback() {
-                @Override
-                public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                    super.onAuthenticationError(errorCode, errString);
-                }
-
-                // THIS METHOD IS CALLED WHEN AUTHENTICATION IS SUCCESS
-                @Override
-                public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                    super.onAuthenticationSucceeded(result);
-                    FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            		fusedLocationClient.getCurrentLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                if (timeData == null)
-                                    timeData = new TimeData();
-                                String s = timeBtn.getText().toString();
-                                if (timeData != null) {
-                                    if (s.equals("Time In")) {
-                                        timeBtn.setText("Time Out");
-                                        timeBtn.setBackground(getResources().getDrawable(R.drawable.time_out_btn));
-                                        String inTime = currTimeEt.getText().toString();
-                                        inTimeEt.setText(inTime);
-                                        timeData.setInTime(inTime);
-                                    } else if (s.equals("Time Out")) {
-                                        timeBtn.setVisibility(View.INVISIBLE);
-                                        timeBtn.setEnabled(false);
-                                        String outTime = currTimeEt.getText().toString();
-                                        outTimeEt.setText(outTime);
-                                        timeData.setOutTime(outTime);
-                                        String inTime = timeData.getInTime();
-                                        timeData.setInHrs(getInHrs(inTime, outTime));
-                                    }
-                                    if (timeData.getDate() == null)
-                                        timeData.setDate(getDate());
-                                    updateData(timeData, timeData.getDate());
-                                }
-                            }
-                        }
-                    });
-
-
-                }
-                @Override
-                public void onAuthenticationFailed() {
-                    super.onAuthenticationFailed();
-                }
-            });
-
-            final BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("Authentication")
-                    .setDescription("Use your fingerprint to  "+timeBtn.getText()).setNegativeButtonText("Cancel").build();
-            biometricPrompt.authenticate(promptInfo);
 
         });
 
@@ -158,7 +97,7 @@ public class EmpHomeFragment extends Fragment {
             startActivity(new Intent(getContext(), ApplyLeaveActivity.class));
         });
 
-        cancelBtn.setOnClickListener(v ->{
+        cancelBtn.setOnClickListener(v -> {
             startActivity(new Intent(getContext(), CancelApplicationActivity.class));
         });
 
@@ -174,6 +113,93 @@ public class EmpHomeFragment extends Fragment {
         regAttBtn.setOnClickListener(v -> {
             startActivity(new Intent(getContext(), RegulariseAttendanceActivity.class));
         });
+    }
+
+    private void authenticateBio() {
+        BiometricManager biometricManager = BiometricManager.from(getActivity().getApplicationContext());
+        switch (biometricManager.canAuthenticate()) {
+            case BiometricManager.BIOMETRIC_SUCCESS:
+                Toast.makeText(getContext(), "Fingerprint: BIOMETRIC_AVAILABLE", Toast.LENGTH_SHORT).show();
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                Toast.makeText(getContext(), "Fingerprint: BIOMETRIC_ERROR_NO_HARDWARE", Toast.LENGTH_SHORT).show();
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                Toast.makeText(getContext(), "Fingerprint: BIOMETRIC_ERROR_HW_UNAVAILABLE", Toast.LENGTH_SHORT).show();
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                Toast.makeText(getContext(), "Fingerprint: BIOMETRIC_ERROR_NONE_ENROLLED", Toast.LENGTH_SHORT).show();
+                break;
+        }
+
+        Executor executor = ContextCompat.getMainExecutor(getActivity());
+        final BiometricPrompt biometricPrompt = new BiometricPrompt(getActivity(), executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                authLocation();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                Toast.makeText(getContext(), "Auth failed", Toast.LENGTH_SHORT).show();
+                authLocation();
+                super.onAuthenticationFailed();
+            }
+        });
+
+        final BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("Authentication")
+                .setDescription("Use your fingerprint to  " + timeBtn.getText()).setNegativeButtonText("Cancel").build();
+        biometricPrompt.authenticate(promptInfo);
+    }
+
+    private void authLocation() {
+        FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        fusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    addTimeData();
+                } else {
+                    Toast.makeText(getContext(), "Enable Location first", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void addTimeData(){
+        if (timeData == null)
+            timeData = new TimeData();
+        String s = timeBtn.getText().toString();
+        if (timeData != null) {
+            if (s.equals("Time In")) {
+                timeBtn.setText("Time Out");
+                timeBtn.setBackground(getResources().getDrawable(R.drawable.time_out_btn));
+                String inTime = currTimeEt.getText().toString();
+                inTimeEt.setText(inTime);
+                timeData.setInTime(inTime);
+            } else if (s.equals("Time Out")) {
+                timeBtn.setVisibility(View.INVISIBLE);
+                timeBtn.setEnabled(false);
+                String outTime = currTimeEt.getText().toString();
+                outTimeEt.setText(outTime);
+                timeData.setOutTime(outTime);
+                String inTime = timeData.getInTime();
+                timeData.setInHrs(getInHrs(inTime, outTime));
+            }
+            if (timeData.getDate() == null)
+                timeData.setDate(getDate());
+            updateData(timeData, timeData.getDate());
+        }
     }
 
     private void updateTime() {
@@ -301,33 +327,33 @@ public class EmpHomeFragment extends Fragment {
         return value;
     }
 
-    private void getLocationPermission(){
-            ActivityResultLauncher<String[]> locationPermissionRequest =
-            registerForActivityResult(new ActivityResultContracts
-                .RequestMultiplePermissions(), result -> {
-                    Boolean fineLocationGranted = result.getOrDefault(
-                            Manifest.permission.ACCESS_FINE_LOCATION, false);
-                    Boolean coarseLocationGranted = result.getOrDefault(
-                            Manifest.permission.ACCESS_COARSE_LOCATION,false);
-                    if (fineLocationGranted != null && fineLocationGranted) {
-                        // Precise location access granted.
-                    } else if (coarseLocationGranted != null && coarseLocationGranted) {
-                        // Only approximate location access granted.
-                    } else {
-                        Toast.makeText(getContext(),"Location permission is required",Toast.LENGHT_LONG).show();
-                        getLocationPermission();
-                    }
-                }
-            );
-        
+    private void getLocationPermission() {
+        ActivityResultLauncher<String[]> locationPermissionRequest =
+                registerForActivityResult(new ActivityResultContracts
+                                .RequestMultiplePermissions(), result -> {
+                            Boolean fineLocationGranted = result.getOrDefault(
+                                    Manifest.permission.ACCESS_FINE_LOCATION, false);
+                            Boolean coarseLocationGranted = result.getOrDefault(
+                                    Manifest.permission.ACCESS_COARSE_LOCATION, false);
+                            if (fineLocationGranted != null && fineLocationGranted) {
+                                // Precise location access granted.
+                            } else if (coarseLocationGranted != null && coarseLocationGranted) {
+                                // Only approximate location access granted.
+                            } else {
+                                Toast.makeText(getContext(), "Location permission is required", Toast.LENGTH_LONG).show();
+                                getLocationPermission();
+                            }
+                        }
+                );
+
         // ...
-        
+
         // Before you perform the actual permission request, check whether your app
         // already has the permissions, and whether your app needs to show a permission
         // rationale dialog. For more details, see Request permissions.
-        locationPermissionRequest.launch(new String[] {
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+        locationPermissionRequest.launch(new String[]{
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
         });
     }
 

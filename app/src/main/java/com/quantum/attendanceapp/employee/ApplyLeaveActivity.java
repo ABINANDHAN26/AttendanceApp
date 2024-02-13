@@ -2,11 +2,13 @@ package com.quantum.attendanceapp.employee;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,6 +34,8 @@ public class ApplyLeaveActivity extends AppCompatActivity {
     private Button applyBtn;
     private ImageView backBtn;
     private AutoCompleteTextView leaveSpinner;
+
+    private ProgressBar progressBar;
 
 
     @Override
@@ -60,6 +64,7 @@ public class ApplyLeaveActivity extends AppCompatActivity {
                 Toast.makeText(this, "Enter data", Toast.LENGTH_SHORT).show();
                 return;
             }
+            progressBar.setVisibility(View.VISIBLE);
             LeaveData leaveData = new LeaveData();
             leaveData.setFromData(fromDate);
             leaveData.setToData(toDate);
@@ -140,6 +145,7 @@ public class ApplyLeaveActivity extends AppCompatActivity {
 
                                     for (String preDate : previousDateList) {
                                         if (currentDateList.contains(preDate)) {
+                                            progressBar.setVisibility(View.GONE);
                                             Toast.makeText(ApplyLeaveActivity.this, "You applied leave for this date's", Toast.LENGTH_LONG).show();
                                             anyMatch = true;
                                             break outerloop;
@@ -150,6 +156,7 @@ public class ApplyLeaveActivity extends AppCompatActivity {
                             if (!anyMatch) {
                                 database.collection("LeaveData").document().set(leaveData)
                                         .addOnCompleteListener(task1 -> {
+                                            progressBar.setVisibility(View.GONE);
                                             if (task1.isSuccessful()) {
                                                 Toast.makeText(ApplyLeaveActivity.this, "Leave Applied", Toast.LENGTH_SHORT).show();
                                                 finish();
@@ -182,6 +189,8 @@ public class ApplyLeaveActivity extends AppCompatActivity {
         leaveSpinner = findViewById(R.id.leave_spinner);
         applyBtn = findViewById(R.id.apply_leave_btn);
         backBtn = findViewById(R.id.back_btn);
+
+        progressBar = findViewById(R.id.progress_bar);
 
         fromDateEt.setShowSoftInputOnFocus(false);
         toDateEt.setShowSoftInputOnFocus(false);

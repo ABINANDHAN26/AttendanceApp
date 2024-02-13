@@ -38,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onResume();
 
         loginBtn.setOnClickListener(view -> {
+            loginBtn.setEnabled(false);
             progressBar.setVisibility(View.VISIBLE);
             String email, password;
             email = emailEt.getText().toString();
@@ -52,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
             } else {
                 progressBar.setVisibility(View.INVISIBLE);
                 signIn(email, password);
-                loginBtn.setEnabled(false);
+
             }
         });
 
@@ -77,6 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                         finish();
                     }
                 }).addOnFailureListener(e -> {
+                    loginBtn.setEnabled(true);
                     Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();
                 });
     }
@@ -87,8 +89,8 @@ public class LoginActivity extends AppCompatActivity {
         forgotPwTv = findViewById(R.id.forgot_login);
 
         progressBar = findViewById(R.id.progress_login);
-
         loginBtn = findViewById(R.id.login_btn);
+
 
     }
 

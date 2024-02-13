@@ -3,8 +3,10 @@ package com.quantum.attendanceapp.employee;
 import static com.quantum.attendanceapp.SplashScreen.*;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -177,7 +179,7 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
 
         submitBtn = findViewById(R.id.submit_btn);
 
-        progressBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progress_bar);
 
         newInEt.setShowSoftInputOnFocus(false);
         newOutEt.setShowSoftInputOnFocus(false);

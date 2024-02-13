@@ -29,6 +29,8 @@ public class CancelApplicationActivity extends AppCompatActivity {
     private RecyclerView cancelLeaveRecyclerView,cancelRegRecyclerView;
     private RecyclerView.LayoutManager rvl;
     private CancelListAdapter cla;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
