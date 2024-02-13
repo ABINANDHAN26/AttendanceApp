@@ -102,29 +102,39 @@ public class EmpHomeFragment extends Fragment {
                 @Override
                 public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                     super.onAuthenticationSucceeded(result);
-                    if (timeData == null)
-                        timeData = new TimeData();
-                    String s = timeBtn.getText().toString();
-                    if (timeData != null) {
-                        if (s.equals("Time In")) {
-                            timeBtn.setText("Time Out");
-                            timeBtn.setBackground(getResources().getDrawable(R.drawable.time_out_btn));
-                            String inTime = currTimeEt.getText().toString();
-                            inTimeEt.setText(inTime);
-                            timeData.setInTime(inTime);
-                        } else if (s.equals("Time Out")) {
-                            timeBtn.setVisibility(View.INVISIBLE);
-                            timeBtn.setEnabled(false);
-                            String outTime = currTimeEt.getText().toString();
-                            outTimeEt.setText(outTime);
-                            timeData.setOutTime(outTime);
-                            String inTime = timeData.getInTime();
-                            timeData.setInHrs(getInHrs(inTime, outTime));
+                    FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            		fusedLocationClient.getCurrentLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                if (timeData == null)
+                                    timeData = new TimeData();
+                                String s = timeBtn.getText().toString();
+                                if (timeData != null) {
+                                    if (s.equals("Time In")) {
+                                        timeBtn.setText("Time Out");
+                                        timeBtn.setBackground(getResources().getDrawable(R.drawable.time_out_btn));
+                                        String inTime = currTimeEt.getText().toString();
+                                        inTimeEt.setText(inTime);
+                                        timeData.setInTime(inTime);
+                                    } else if (s.equals("Time Out")) {
+                                        timeBtn.setVisibility(View.INVISIBLE);
+                                        timeBtn.setEnabled(false);
+                                        String outTime = currTimeEt.getText().toString();
+                                        outTimeEt.setText(outTime);
+                                        timeData.setOutTime(outTime);
+                                        String inTime = timeData.getInTime();
+                                        timeData.setInHrs(getInHrs(inTime, outTime));
+                                    }
+                                    if (timeData.getDate() == null)
+                                        timeData.setDate(getDate());
+                                    updateData(timeData, timeData.getDate());
+                                }
+                            }
                         }
-                        if (timeData.getDate() == null)
-                            timeData.setDate(getDate());
-                        updateData(timeData, timeData.getDate());
-                    }
+                    });
+
 
                 }
                 @Override
