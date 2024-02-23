@@ -45,6 +45,7 @@ dependencies {
     implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
     implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.opencsv:opencsv:5.6'
 
 
 }

@@ -25,6 +25,7 @@ import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -231,6 +232,15 @@ public class Util {
         if(diff >= _24Hrs)
             return false;
         return true;
+    }
+
+    public static String[] getCurrentDateTime() {
+        LocalDate localDate = LocalDate.now();
+        LocalTime localTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
+        return new String[]{formatDate(localDate), localTime.toString()};
+    }
+    public static String formatDate(LocalDate localDate) {
+        return localDate.format(formatter);
     }
 
     public static boolean isGpsEnabled(Context context){

@@ -1,6 +1,7 @@
 package com.quantum.attendanceapp.admin;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,46 +9,32 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.gson.Gson;
 import com.quantum.attendanceapp.R;
+import com.quantum.attendanceapp.Utils.GenerateReport;
 import com.quantum.attendanceapp.adapters.AttendanceListAdapter;
 import com.quantum.attendanceapp.adapters.LeaveListAdapter;
 import com.quantum.attendanceapp.model.LeaveData;
 import com.quantum.attendanceapp.model.RegulariseData;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
-import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 public class AdminHomeFragment extends Fragment {
 
 
-    private RecyclerView leaveRecyclerView,attendanceRecyclerView;
+    private static final int REQUEST_STORAGE_PERMISSION = 1;
+    private RecyclerView leaveRecyclerView, attendanceRecyclerView;
     private RecyclerView.LayoutManager rvl;
-
-    private TextView leaveTv,attendanceTv;
+    private TextView leaveTv, attendanceTv;
     private LeaveListAdapter lla;
     private AttendanceListAdapter ala;
     private Button addEmpBtn, genRepBtn;
@@ -76,56 +63,35 @@ public class AdminHomeFragment extends Fragment {
         getLeaveData();
         getRegulariseData();
 
-        addEmpBtn.setOnClickListener(v -> startActivity(new Intent(getActivity(),AddEmpActivity.class)));
+        addEmpBtn.setOnClickListener(v -> startActivity(new Intent(getActivity(), AddEmpActivity.class)));
 
         genRepBtn.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Still developing", Toast.LENGTH_SHORT).show();
-            if(true)
-                return;
-            getTimeData();
-            try {
-                Gson gson = new Gson();
-//                String json = gson.toJson(myObject);
-                String json= "";
-                JSONArray jsonArray = new JSONArray(json);
-                XSSFWorkbook workbook = new XSSFWorkbook();
-                XSSFSheet sheet = workbook.createSheet("Data");
+            GenerateReport generateReport = new GenerateReport(getContext());
 
-                Row headerRow = sheet.createRow(0);
-                JSONObject firstObject = jsonArray.getJSONObject(0);
-                int cellIndex = 0;
-                for (Iterator<String> iterator = firstObject.keys(); iterator.hasNext(); ) {
-                    String key = iterator.next();
-                    Cell cell = headerRow.createCell(cellIndex++);
-                    cell.setCellValue(key);
-                }
-                int rowIndex = 1;
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    Row row = sheet.createRow(rowIndex++);
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    cellIndex = 0;
-                    for (Iterator<String> iterator = jsonObject.keys(); iterator.hasNext(); ) {
-                        String key = iterator.next();
-                        Cell cell = row.createCell(cellIndex++);
-                        cell.setCellValue(jsonObject.getString(key));
-                    }
-                }
+            generateReport.genReport();
 
-                // Save workbook to file
-                String fileName = "AttendanceReport.xlsx";
-                FileOutputStream fileOut = new FileOutputStream(Environment.getExternalStorageDirectory().getPath() + "/" + fileName);
-                workbook.write(fileOut);
-                fileOut.close();
-                workbook.close();
-                Log.d("ExcelUtils", "Excel file saved to: " + fileName);
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
+
         });
 
     }
 
-    private void getLeaveData(){
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // Check if the request is for storage permission
+        if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            // If request is cancelled, the result arrays are empty.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                GenerateReport generateReport = new GenerateReport(getContext());
+                generateReport.genReport();
+            } else {
+                Toast.makeText(getContext(), "Permission required to store the file", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void getLeaveData() {
         try {
             FirebaseFirestore database = FirebaseFirestore.getInstance();
             database.collection("LeaveData").get()
@@ -135,14 +101,13 @@ public class AdminHomeFragment extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 LeaveData leaveData = document.toObject(LeaveData.class);
                                 if (!leaveData.isApproved())
-                                    if(leaveData.getApproverName() == null || leaveData.getApproverName().trim().isEmpty())
+                                    if (leaveData.getApproverName() == null || leaveData.getApproverName().trim().isEmpty())
                                         leaveDataList.add(leaveData);
                             }
-                            if(leaveDataList.size() <= 0) {
+                            if (leaveDataList.size() <= 0) {
                                 leaveRecyclerView.setVisibility(View.GONE);
                                 leaveTv.setText("No Leave Request's");
-                            }
-                            else {
+                            } else {
                                 rvl = new LinearLayoutManager(getActivity());
                                 lla = new LeaveListAdapter(getActivity(), leaveDataList);
                                 lla.setHasStableIds(true);
@@ -154,13 +119,13 @@ public class AdminHomeFragment extends Fragment {
                             }
                         }
                     });
-        }catch (NullPointerException e){
-            Log.i("TAG", "getLeaveData: "+e.getMessage());
+        } catch (NullPointerException e) {
+            Log.i("TAG", "getLeaveData: " + e.getMessage());
         }
 
     }
 
-    private void getRegulariseData(){
+    private void getRegulariseData() {
         try {
             FirebaseFirestore database = FirebaseFirestore.getInstance();
             database.collection("RegulariseData").get()
@@ -172,11 +137,10 @@ public class AdminHomeFragment extends Fragment {
                                 if (!regulariseData.isAccepted())
                                     regulariseDataList.add(regulariseData);
                             }
-                            if(regulariseDataList.size() <= 0) {
+                            if (regulariseDataList.size() <= 0) {
                                 attendanceRecyclerView.setVisibility(View.GONE);
                                 attendanceTv.setText("No Attendance Request's");
-                            }
-                            else{
+                            } else {
                                 rvl = new LinearLayoutManager(getActivity());
                                 ala = new AttendanceListAdapter(getActivity(), regulariseDataList);
                                 ala.setHasStableIds(true);
@@ -188,12 +152,13 @@ public class AdminHomeFragment extends Fragment {
                             }
                         }
                     });
-        }catch (NullPointerException e){
-            Log.i("TAG", "getRegulariseData: "+e.getMessage());
+        } catch (NullPointerException e) {
+            Log.i("TAG", "getRegulariseData: " + e.getMessage());
         }
 
     }
-    private void getTimeData(){
+
+    private void getTimeData() {
 
     }
 

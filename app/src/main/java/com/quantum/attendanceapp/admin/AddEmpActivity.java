@@ -1,5 +1,6 @@
 package com.quantum.attendanceapp.admin;
 
+import static com.quantum.attendanceapp.SplashScreen.userData;
 import static com.quantum.attendanceapp.Utils.Util.getValue;
 
 import android.content.Context;
@@ -21,10 +22,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.quantum.attendanceapp.R;
 import com.quantum.attendanceapp.SplashScreen;
+import com.quantum.attendanceapp.Utils.PickerUtils;
 import com.quantum.attendanceapp.Utils.Util;
 import com.quantum.attendanceapp.employee.ApplyLeaveActivity;
+import com.quantum.attendanceapp.employee.RegulariseAttendanceActivity;
 import com.quantum.attendanceapp.model.UserData;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class AddEmpActivity extends AppCompatActivity {
@@ -113,6 +117,40 @@ public class AddEmpActivity extends AppCompatActivity {
             addEmployee(userData);
 
         });
+
+        empDojEt.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                empDojEt.clearFocus();
+                Calendar calendar = Calendar.getInstance();
+
+                PickerUtils.showDatePicker(AddEmpActivity.this, ((year, month, day) -> {
+                    String selDate = Util.getDisplayDate(year, month, day);
+                    boolean isWeekOff = Util.isGivenDay(year, month, day, userData.getWeeklyOff());
+                    if(isWeekOff){
+                        Toast.makeText(this, "Selected date is your weekly off", Toast.LENGTH_SHORT).show();
+                    }
+                    empDojEt.setText(selDate);
+
+                }), calendar);
+            }
+        });
+        empDobEt.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                empDobEt.clearFocus();
+                Calendar calendar = Calendar.getInstance();
+
+                PickerUtils.showDatePicker(AddEmpActivity.this, ((year, month, day) -> {
+                    String selDate = Util.getDisplayDate(year, month, day);
+                    boolean isWeekOff = Util.isGivenDay(year, month, day, userData.getWeeklyOff());
+                    if(isWeekOff){
+                        Toast.makeText(this, "Selected date is your weekly off", Toast.LENGTH_SHORT).show();
+                    }
+                    empDobEt.setText(selDate);
+
+                }), calendar);
+            }
+        });
+
     }
 
     private void addEmployee(UserData userData) {
@@ -207,5 +245,8 @@ public class AddEmpActivity extends AppCompatActivity {
         addBtn = findViewById(R.id.add_btn);
 
         progressBar = findViewById(R.id.progress_bar);
+
+        empDobEt.setShowSoftInputOnFocus(false);
+        empDojEt.setShowSoftInputOnFocus(false);
     }
 }
