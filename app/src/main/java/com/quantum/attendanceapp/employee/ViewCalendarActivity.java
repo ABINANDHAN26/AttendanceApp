@@ -2,6 +2,7 @@ package com.quantum.attendanceapp.employee;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -43,6 +44,8 @@ public class ViewCalendarActivity extends AppCompatActivity {
     private UserData userData;
     private String weeklyOff = "";
 
+    private Button backBtn1;
+
     public static String getMonth() {
         LocalDateTime dateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M");
@@ -53,6 +56,7 @@ public class ViewCalendarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_calendar);
+
         findViews();
         userData = SplashScreen.userData;
         weeklyOff = userData.getWeeklyOff();
@@ -99,6 +103,9 @@ public class ViewCalendarActivity extends AppCompatActivity {
 
 
         backBtn.setOnClickListener(view -> {
+            finish();
+        });
+        backBtn1.setOnClickListener(view -> {
             finish();
         });
 
@@ -170,5 +177,6 @@ public class ViewCalendarActivity extends AppCompatActivity {
         detailsTextView = findViewById(R.id.detailsTextView);
         calendarView = findViewById(R.id.calendarView);
         backBtn = findViewById(R.id.back_btn);
+        backBtn1 = findViewById(R.id.back_btn_1);
     }
 }

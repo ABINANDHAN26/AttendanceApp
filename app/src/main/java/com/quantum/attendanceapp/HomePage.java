@@ -1,34 +1,29 @@
 package com.quantum.attendanceapp;
 
-import static com.quantum.attendanceapp.SplashScreen.*;
+import static com.quantum.attendanceapp.SplashScreen.userData;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.quantum.attendanceapp.admin.AdminHomeFragment;
+import com.quantum.attendanceapp.admin.SettingsActivity;
 import com.quantum.attendanceapp.employee.EmpHomeFragment;
 
 public class HomePage extends AppCompatActivity {
 
-    private TextView navUserName;
-    private ImageView navUserPic;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
-    private String userType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,17 +48,27 @@ public class HomePage extends AppCompatActivity {
                 intent = new Intent(HomePage.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
+            } else if (id == R.id.nav_profile) {
+                intent = new Intent(HomePage.this, ProfileActivity.class);
+                startActivity(intent);
+            } else if (id == R.id.nav_settings) {
+                if (userData.getUserType().equals("Admin")) {
+                    intent = new Intent(HomePage.this, SettingsActivity.class);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(this, "You don't have access to settings", Toast.LENGTH_SHORT).show();
+                }
             }
             return true;
         });
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        userType = userData.getUserType();
-        if(userType.equals("Admin")){
+        String userType = userData.getUserType();
+        if (userType.equals("Admin")) {
             AdminHomeFragment admHomeFrag = new AdminHomeFragment();
             transaction.add(R.id.container, admHomeFrag, "admHomeFrag");
             transaction.show(admHomeFrag);
             transaction.commit();
-        }else if(userType.equals("Employee")){
+        } else if (userType.equals("Employee")) {
             EmpHomeFragment empHomeFrag = new EmpHomeFragment();
             transaction.add(R.id.container, empHomeFrag, "empHomeFrag");
             transaction.show(empHomeFrag);
@@ -76,8 +81,6 @@ public class HomePage extends AppCompatActivity {
 
         navigationView = findViewById(R.id.nav_view);
         View headerView = navigationView.getHeaderView(0);
-        navUserName = headerView.findViewById(R.id.nav_user_name);
-        navUserPic = headerView.findViewById(R.id.nav_user_pic);
         toolbar = findViewById(R.id.toolbar);
 
     }

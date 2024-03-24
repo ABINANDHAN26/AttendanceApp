@@ -1,12 +1,9 @@
 package com.quantum.attendanceapp.adapters;
 
-import static androidx.core.content.ContextCompat.startActivity;
 import static com.quantum.attendanceapp.SplashScreen.userData;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,9 +15,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -28,20 +22,18 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.quantum.attendanceapp.R;
-import com.quantum.attendanceapp.SplashScreen;
 import com.quantum.attendanceapp.Utils.Util;
-import com.quantum.attendanceapp.admin.AdminHomeFragment;
 import com.quantum.attendanceapp.model.LeaveData;
 import com.quantum.attendanceapp.model.TimeData;
 import com.quantum.attendanceapp.model.UserData;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 
 public class LeaveListAdapter extends RecyclerView.Adapter<LeaveListAdapter.LeaveViewHolder> {
@@ -153,30 +145,46 @@ public class LeaveListAdapter extends RecyclerView.Adapter<LeaveListAdapter.Leav
                                        body = "Your leave request from "+leaveData.getFromData()+" to "+leaveData.getToData()+" as been rejected by "+leaveData.getApproverName()+".";
                                    }
 
-                                 /*  String finalSubject = subject;
+                                   String finalSubject = subject;
                                    String finalBody = body;
                                    FirebaseFirestore.getInstance().collection("Data").document(leaveData.getUserId()).get()
                                            .addOnCompleteListener(task1 -> {
                                                if(task1.isSuccessful()){
                                                    DocumentSnapshot result = task1.getResult();
                                                    UserData object = result.toObject(UserData.class);
-                                                   String emailId = "abinandhan952@gmail.com";
+                                                   String emailId = empData.getEmailId();
                                                    if(object!=null)
                                                        emailId = object.getEmailId();
                                                    Map<String, String> requestData = new HashMap<>();
                                                    requestData.put("email", emailId);
                                                    requestData.put("subject", finalSubject);
                                                    requestData.put("body", finalBody);
+                                                   Map<String, String> emailData = Util.getEmailData(context);
+                                                   Set<String> keys = emailData.keySet();
+                                                   String url = "";
+                                                   for (String key:keys) {
+                                                       Log.i("TAG", "updateData: "+key);
+                                                       if(key.equals("pingServerAddress"))
+                                                           continue;
+                                                       if(key.equals("emailServerAddress")){
+                                                           url = emailData.get(key);
+                                                           continue;
+                                                       }
+                                                       Log.i("TAG", "updateData: "+emailData.get(key));
+                                                       requestData.put(key,emailData.get(key));
+                                                   }
                                                    Gson gson = new Gson();
                                                    String jsonData = gson.toJson(requestData);
                                                    try {
-                                                       Util.sendPostRequest("http://192.168.245.165:5000/send_email", jsonData);
-                                                   } catch (IOException e) {
+                                                       Log.i("TAG", "updateData: jsonData: "+jsonData);
+                                                       Util.sendPostRequest(jsonData,url);
+                                                   } catch (Exception e) {
                                                        e.printStackTrace();
+                                                       Log.i("TAG", "updateData: " + e.getMessage());
                                                    }
                                                }
                                            });
-*/
+
 
                                }
                            });

@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -33,11 +34,10 @@ import java.util.List;
 
 public class AddEmpActivity extends AppCompatActivity {
 
-    String TAG = "TAG";
     private EditText empNameEt, empEmailEt, empDojEt, empDobEt, empQualEt, empAddressEt, empPhoneEt;
     private AutoCompleteTextView weeklyOffSpinner, empBranchSpinner;
-    private Button addBtn;
-
+    private Button addBtn,backBtn1;
+    private ImageView backBtn;
     private ProgressBar progressBar;
 
     @Override
@@ -53,6 +53,14 @@ public class AddEmpActivity extends AppCompatActivity {
         super.onResume();
         setBranchSpinner();
         setWeeklySpinner();
+
+        backBtn.setOnClickListener(v->{
+            finish();
+        });
+        backBtn1.setOnClickListener(v->{
+            finish();
+        });
+
         addBtn.setOnClickListener(v -> {
             if (Util.checkEt(empNameEt)) {
                 empNameEt.setError("Enter employee name!!");
@@ -125,10 +133,6 @@ public class AddEmpActivity extends AppCompatActivity {
 
                 PickerUtils.showDatePicker(AddEmpActivity.this, ((year, month, day) -> {
                     String selDate = Util.getDisplayDate(year, month, day);
-                    boolean isWeekOff = Util.isGivenDay(year, month, day, userData.getWeeklyOff());
-                    if(isWeekOff){
-                        Toast.makeText(this, "Selected date is your weekly off", Toast.LENGTH_SHORT).show();
-                    }
                     empDojEt.setText(selDate);
 
                 }), calendar);
@@ -141,12 +145,7 @@ public class AddEmpActivity extends AppCompatActivity {
 
                 PickerUtils.showDatePicker(AddEmpActivity.this, ((year, month, day) -> {
                     String selDate = Util.getDisplayDate(year, month, day);
-                    boolean isWeekOff = Util.isGivenDay(year, month, day, userData.getWeeklyOff());
-                    if(isWeekOff){
-                        Toast.makeText(this, "Selected date is your weekly off", Toast.LENGTH_SHORT).show();
-                    }
                     empDobEt.setText(selDate);
-
                 }), calendar);
             }
         });
@@ -179,6 +178,7 @@ public class AddEmpActivity extends AppCompatActivity {
                                                         Toast.makeText(this, "Employee added successfully", Toast.LENGTH_SHORT).show();
                                                         mAuth.signOut();
                                                         signIn();
+                                                        finish();
                                                     }
                                                 });
                                     }
@@ -248,5 +248,8 @@ public class AddEmpActivity extends AppCompatActivity {
 
         empDobEt.setShowSoftInputOnFocus(false);
         empDojEt.setShowSoftInputOnFocus(false);
+
+        backBtn = findViewById(R.id.back_btn);
+        backBtn1 = findViewById(R.id.back_btn_1);
     }
 }

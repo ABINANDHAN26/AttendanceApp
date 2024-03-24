@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -28,11 +29,14 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
     private ProgressBar progressBar;
 
     private String selDate = "", selInTime = "", selOutTime = "", reason = "";
+    private ImageView backBtn;
+    private Button backBtn1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regularise_attendance);
+
         findViews();
     }
 
@@ -40,6 +44,12 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        backBtn.setOnClickListener(v->{
+            finish();
+        });
+        backBtn1.setOnClickListener(v->{
+            finish();
+        });
         dateEt.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 dateEt.clearFocus();
@@ -184,5 +194,8 @@ public class RegulariseAttendanceActivity extends AppCompatActivity {
         newInEt.setShowSoftInputOnFocus(false);
         newOutEt.setShowSoftInputOnFocus(false);
         dateEt.setShowSoftInputOnFocus(false);
+
+        backBtn = findViewById(R.id.back_btn);
+        backBtn1 = findViewById(R.id.back_btn_1);
     }
 }

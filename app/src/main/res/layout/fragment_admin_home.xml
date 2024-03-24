@@ -65,5 +65,25 @@
             android:background="@drawable/rounded_rectangle_btn"
             android:text="Generate report"
             app:backgroundTint="@null" />
+        <Button
+            android:id="@+id/gen_tdy_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_rectangle_btn"
+            android:text="Generate today report"
+            app:backgroundTint="@null" />
+        <Button
+            android:id="@+id/ref_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rounded_rectangle_btn"
+            android:text="Refresh"
+            app:backgroundTint="@null" />
     </LinearLayout>
 </ScrollView>

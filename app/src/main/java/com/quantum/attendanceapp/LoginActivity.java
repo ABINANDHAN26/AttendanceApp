@@ -30,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         findViews();
+
         mAuth = FirebaseAuth.getInstance();
     }
 
@@ -57,11 +58,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        forgotPwTv.setOnClickListener(v->{
-            startActivity(new Intent(LoginActivity.this, ForgotPwActivity.class));
-        });
-
+        forgotPwTv.setOnClickListener(v-> startActivity(new Intent(LoginActivity.this, ForgotPwActivity.class)));
     }
+
 
     private void signIn(String email, String password) {
         SharedPreferences sharedPref = this.getSharedPreferences("Login_Details", Context.MODE_PRIVATE);
@@ -72,10 +71,13 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
+                        loginBtn.setEnabled(true);
                         editor.putLong("loginTime",System.currentTimeMillis());
                         editor.commit();
                         startActivity(new Intent(LoginActivity.this, SplashScreen.class));
                         finish();
+                    }else{
+                        loginBtn.setEnabled(true);
                     }
                 }).addOnFailureListener(e -> {
                     loginBtn.setEnabled(true);
@@ -90,6 +92,7 @@ public class LoginActivity extends AppCompatActivity {
 
         progressBar = findViewById(R.id.progress_login);
         loginBtn = findViewById(R.id.login_btn);
+
 
 
     }

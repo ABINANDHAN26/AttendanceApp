@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,12 +31,14 @@ public class CancelApplicationActivity extends AppCompatActivity {
     private RecyclerView cancelLeaveRecyclerView,cancelRegRecyclerView;
     private RecyclerView.LayoutManager rvl;
     private CancelListAdapter cla;
-
+    private Button backBtn;
+    private ImageView backBtn1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cancel_application);
+
         findViews();
     }
 
@@ -43,6 +47,13 @@ public class CancelApplicationActivity extends AppCompatActivity {
         super.onResume();
         getLeaveData();
         getRegulariseData();
+
+        backBtn.setOnClickListener(v->{
+            finish();
+        });
+        backBtn1.setOnClickListener(v->{
+            finish();
+        });
     }
 
 
@@ -115,6 +126,8 @@ public class CancelApplicationActivity extends AppCompatActivity {
     private void findViews(){
         cancelLeaveRecyclerView = findViewById(R.id.cancel_leave_list);
         cancelRegRecyclerView = findViewById(R.id.cancel_reg_list);
+        backBtn1 = findViewById(R.id.back_btn);
+        backBtn = findViewById(R.id.back_btn_1);
     }
 
 }

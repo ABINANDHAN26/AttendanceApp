@@ -22,6 +22,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import com.google.gson.Gson;
 import com.quantum.attendanceapp.R;
 import com.quantum.attendanceapp.Utils.Util;
@@ -44,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 
 public class AttendanceListAdapter extends RecyclerView.Adapter<AttendanceListAdapter.AttendanceViewHolder> {
@@ -158,13 +160,25 @@ public class AttendanceListAdapter extends RecyclerView.Adapter<AttendanceListAd
                                     requestData.put("email", emailId);
                                     requestData.put("subject", finalSubject);
                                     requestData.put("body", finalBody);
+                                    Map<String, String> emailData = Util.getEmailData(context);
+                                    Set<String> keys = emailData.keySet();
+                                    String url = "";
+                                    for (String key:keys) {
+                                        if(key.equals("pingServerAddress"))
+                                            continue;
+                                        if(key.equals("emailServerAddress")){
+                                            url = requestData.get(key);
+                                            continue;
+                                        }
+                                        requestData.put(key,emailData.get(key));
+                                    }
                                     Gson gson = new Gson();
                                     String jsonData = gson.toJson(requestData);
                                     try {
-                                        Util.sendPostRequest("http://192.168.245.165:5000/send_email", jsonData);
-                                    } catch (IOException e) {
+                                        Util.sendPostRequest(jsonData,url);
+                                    } catch (Exception e) {
                                         e.printStackTrace();
-                                        Log.i("TAG", "updateData: "+e.getMessage());
+                                        Log.i("TAG", "updateData: " + e.getMessage());
                                     }
                                 }
                             });

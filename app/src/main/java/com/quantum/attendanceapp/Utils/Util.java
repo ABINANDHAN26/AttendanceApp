@@ -5,10 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
+import android.os.StrictMode;
 import android.util.Log;
 import android.widget.EditText;
 
@@ -19,8 +16,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -30,51 +27,17 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 public class Util {
 
-    public static final String USER = "User";
-    public static final String ID = "ID";
-    public static final String MODE = "Mode";
-    public static final int EDIT_MODE = 2;
-    public static final int ADD_MODE = 1;
-    private static final String DECI_FORMAT = "#.00";
-    private static boolean isNetworkAvail = true;
-    private static final long _24Hrs = 1000 * 60 * 60 * 24;
+    private static final long _1Hrs = 1000 * 60 * 60;
+
+    private static final int TIMEOUT_MILLISECONDS = 5000;
+    private static final String SHARED_PREF_NAME = "EMAIL_DATA";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    private static final ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
-        @Override
-        public void onAvailable(@NonNull Network network) {
-            super.onAvailable(network);
-            isNetworkAvail = true;
-        }
-
-        @Override
-        public void onLost(@NonNull Network network) {
-            super.onLost(network);
-            isNetworkAvail = false;
-        }
-
-        @Override
-        public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
-            super.onCapabilitiesChanged(network, networkCapabilities);
-            isNetworkAvail = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
-
-        }
-    };
-
-    public static boolean checkNetwork(ConnectivityManager connectivityManager) {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build();
-
-        connectivityManager.requestNetwork(networkRequest, networkCallback);
-        return isNetworkAvail;
-    }
 
     public static String generateId(String type, String uniqueId) {
         long timestamp = System.currentTimeMillis();
@@ -118,44 +81,18 @@ public class Util {
         return ChronoUnit.DAYS.between(instant1, instant2);
     }
 
-    public static String getFormattedString(Object s) {
-        String format = "%.2f";
-        try {
-            return String.format(Locale.getDefault(), format, s);
-        } catch (Exception e) {
-            return String.valueOf(s);
-        }
 
-    }
-
-    public static double formatDecimal(double d) {
-        DecimalFormat decimalFormat = new DecimalFormat(DECI_FORMAT);
-        try {
-            return Double.parseDouble(decimalFormat.format(d));
-        } catch (Exception e) {
-            return d;
-        }
-    }
 
     public static boolean checkEt(EditText et) {
         return et.getText().toString().trim().isEmpty();
     }
 
     public static String getValue(EditText et) {
-        return et.getText().toString();
+        return et.getText().toString().trim();
     }
 
-    public static double getDoubleValue(EditText editText) {
-        String text = editText.getText().toString().trim();
-        try {
-            return text.isEmpty() ? 0 : Double.parseDouble(text);
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
 
-    public static List<String> getDateList(String sd, String ed){
+    public static List<String> getDateList(String sd, String ed) {
         List<String> retList = new ArrayList<>();
 
         LocalDate startDate = LocalDate.parse(sd, DateTimeFormatter.ofPattern("dd-MM-yyyy"));
@@ -172,15 +109,7 @@ public class Util {
         return retList;
     }
 
-    public static boolean isGivenDate(String d,String day){
-        String[] date = d.split("-");
-        int year = Integer.parseInt(date[0]);
-        int month = Integer.parseInt(date[1]);
-        int d1 = Integer.parseInt(date[2]);
-        return isGivenDay(year,month,d1,day);
-    }
-
-    public static boolean isGivenDay(int year, int month, int day, String givenDay ) {
+    public static boolean isGivenDay(int year, int month, int day, String givenDay) {
         givenDay = givenDay.toUpperCase();
         DayOfWeek givenD = DayOfWeek.valueOf(givenDay);
         LocalDate givenDate = LocalDate.of(year, month, day);
@@ -198,22 +127,93 @@ public class Util {
         return instant.toEpochMilli();
     }
 
+    public static String[] getDatesInMonth(int month) {
 
-    public static void sendPostRequest(String url, String requestData) throws IOException {
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-        con.setRequestMethod("POST");
-
-        con.setRequestProperty("Content-Type", "application/json");
-
-        con.setDoOutput(true);
-        con.setDoInput(true);
-
-        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
-            byte[] postDataBytes = requestData.getBytes();
-            wr.write(postDataBytes);
+        if (month < 1 || month > 12) {
+            return new String[0];
         }
+
+        int daysInMonth;
+        if (month == 2) {
+            daysInMonth = 29; // Assuming non-leap year for simplicity
+        } else if (month == 4 || month == 6 || month == 9 || month == 11) {
+            daysInMonth = 30;
+        } else {
+            daysInMonth = 31;
+        }
+
+        String[] datesArray = new String[daysInMonth];
+        for (int i = 0; i < daysInMonth; i++) {
+            datesArray[i] = String.valueOf(i + 1);
+        }
+        return datesArray;
+    }
+
+    public static void storeEmailData(Context context, Map<String, String> data) {
+        Log.i("TAG", "storeEmailData: "+data);
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("emailServerAddress", data.get("emailServerAddress"));
+        editor.putString("sender_email", data.get("sender_email"));
+        editor.putString("sender_password", data.get("sender_password"));
+        editor.apply();
+    }
+
+
+    public static Map<String, String> getEmailData(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        String address = sharedPreferences.getString("emailServerAddress", null);
+        String email = sharedPreferences.getString("sender_email", null);
+        String pw = sharedPreferences.getString("sender_password", null);
+        Map<String,String> data = new HashMap<>();
+        data.put("emailServerAddress",address);
+        data.put("sender_email",email);
+        data.put("sender_password",pw);
+        return data;
+    }
+
+    public static boolean checkAddress(String serverUrl) {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        boolean retValue = false;
+        try {
+//            serverUrl = "http://192.168.98.165:5000/ping";
+            URL url = new URL(serverUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(TIMEOUT_MILLISECONDS); // Set connection timeout
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            return responseCode == HttpURLConnection.HTTP_OK;
+        } catch (Exception e) {
+            Log.e("TAG", "checkAddress: ",e );
+        }
+
+        return retValue;
+
+
+    }
+    public static String[] parseURL(String urlString) {
+        Log.i("TAG", "parseURL: "+urlString);
+        String[] retValue = new String[2];
+        try {
+            URL url = new URL(urlString);
+            String ipAddress = url.getHost();
+            int port = url.getPort();
+            retValue[0] = ipAddress;
+            retValue[1] = String.valueOf(port);
+        } catch (MalformedURLException e) {
+            Log.e("TAG", "parseURL: ",e );
+            return null;
+        }
+        return retValue;
+    }
+    public static void sendPostRequest(String requestData,String url) throws Exception {
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        if(url == null || url.trim().isEmpty())
+            return;
+        HttpURLConnection con = getHttpURLConnection(requestData, url);
 
         try (BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
             String inputLine;
@@ -224,14 +224,31 @@ public class Util {
         }
     }
 
-    public static boolean isLoginSessionValid(Context context){
+    @NonNull
+    private static HttpURLConnection getHttpURLConnection(String requestData, String url) throws IOException {
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+        con.setRequestMethod("POST");
+        con.setConnectTimeout(TIMEOUT_MILLISECONDS); // Set connection timeout
+        con.setRequestProperty("Content-Type", "application/json");
+
+        con.setDoOutput(true);
+        con.setDoInput(true);
+
+        try (DataOutputStream wr = new DataOutputStream(con.getOutputStream())) {
+            byte[] postDataBytes = requestData.getBytes();
+            wr.write(postDataBytes);
+        }
+        return con;
+    }
+
+    public static boolean isLoginSessionValid(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("Login_Details", MODE_PRIVATE);
         long loginTime = sharedPref.getLong("loginTime", 0);
         long currentTime = System.currentTimeMillis();
         long diff = currentTime - loginTime;
-        if(diff >= _24Hrs)
-            return false;
-        return true;
+        return diff < _1Hrs;
     }
 
     public static String[] getCurrentDateTime() {
@@ -239,29 +256,29 @@ public class Util {
         LocalTime localTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
         return new String[]{formatDate(localDate), localTime.toString()};
     }
+
     public static String formatDate(LocalDate localDate) {
         return localDate.format(formatter);
     }
 
-    public static boolean isGpsEnabled(Context context){
+    public static boolean isGpsEnabled(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         boolean gpsEnabled = false;
         boolean networkEnabled = false;
         try {
             gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("TAG", "isGpsEnabled: ",e );
         }
 
         try {
             networkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("TAG", "isNetworkEnabled: ",e );
         }
 
         return gpsEnabled || networkEnabled;
     }
-
 
 
 }

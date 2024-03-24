@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".employee.ViewCalendarActivity">
 
     <androidx.cardview.widget.CardView
@@ -51,6 +52,18 @@
         android:layout_marginTop="16dp"
         android:text="Click on a date to see details"
         android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/back_btn_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_below="@id/detailsTextView"
+        android:background="@drawable/rounded_rectangle_btn"
+        android:text="Back"
+        app:backgroundTint="@null" />
 
 
 </RelativeLayout>

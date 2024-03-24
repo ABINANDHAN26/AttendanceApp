@@ -1,23 +1,22 @@
 package com.quantum.attendanceapp;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.quantum.attendanceapp.model.UserData;
 
-public class Profilectivity extends AppCompatActivity {
+public class ProfileActivity extends AppCompatActivity {
 
     private TextView nameTv,idTv,dobTv,dojTv,emailTv,qualTv,repManTv,branchTv;
     private ImageView backBtn;
+    private Button backBtn1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +44,9 @@ public class Profilectivity extends AppCompatActivity {
         backBtn.setOnClickListener(v->{
             finish();
         });
+        backBtn1.setOnClickListener(v->{
+            finish();
+        });
 
     }
 
@@ -70,5 +72,6 @@ public class Profilectivity extends AppCompatActivity {
         branchTv =findViewById(R.id.branch_tv);
 
         backBtn = findViewById(R.id.back_btn);
+        backBtn1 = findViewById(R.id.back_btn_1);
     }
 }

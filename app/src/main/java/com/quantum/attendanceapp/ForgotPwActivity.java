@@ -7,6 +7,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -19,11 +20,15 @@ public class ForgotPwActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
+    private ImageView backBtn;
+    private Button backBtn1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_pw);
         mAuth = FirebaseAuth.getInstance();
+
         findViews();
     }
 
@@ -45,6 +50,13 @@ public class ForgotPwActivity extends AppCompatActivity {
                 requestPassChange(email);
             }
         });
+
+        backBtn.setOnClickListener(view ->{
+            finish();
+        });
+        backBtn1.setOnClickListener(view ->{
+            finish();
+        });
     }
 
     private void requestPassChange(String email){
@@ -63,5 +75,7 @@ public class ForgotPwActivity extends AppCompatActivity {
         emailEt = findViewById(R.id.email_fpw);
         resetBtn = findViewById(R.id.reset_pw_btn);
         progressBar = findViewById(R.id.progress_fpw);
+        backBtn = findViewById(R.id.back_btn);
+        backBtn1 = findViewById(R.id.back_btn_1);
     }
 }

@@ -1,7 +1,6 @@
 package com.quantum.attendanceapp.model;
-import com.google.gson.annotations.Expose;
 public class ReportData {
-    @Expose
+
     private String empId,empName,presentDays,leavesTaken;
 
     public ReportData(String empId, String empName, String presentDays, String leavesTaken) {

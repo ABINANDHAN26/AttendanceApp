@@ -5,13 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".Profilectivity">
+    tools:context=".ProfileActivity">
     <androidx.cardview.widget.CardView
         android:id="@+id/toolbar_main"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:backgroundTint="@color/primary">
         <ImageView
             android:id="@+id/back_btn"
@@ -24,8 +22,8 @@
 
 <TableLayout
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_weight="1">
+    android:layout_height="wrap_content"
+    android:paddingBottom="10dp">
     <TableRow>
         <TextView
             android:layout_width="wrap_content"
@@ -200,5 +198,14 @@
             android:textStyle="bold"/>
     </TableRow>
 </TableLayout>
-
+    <Button
+        android:id="@+id/back_btn_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/rounded_rectangle_btn"
+        android:text="Back"
+        app:backgroundTint="@null" />
 </LinearLayout>

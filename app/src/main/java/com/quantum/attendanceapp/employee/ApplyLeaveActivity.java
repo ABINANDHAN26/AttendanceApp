@@ -33,6 +33,7 @@ public class ApplyLeaveActivity extends AppCompatActivity {
 
     private Button applyBtn;
     private ImageView backBtn;
+    private Button backBtn1;
     private AutoCompleteTextView leaveSpinner;
 
     private ProgressBar progressBar;
@@ -42,6 +43,7 @@ public class ApplyLeaveActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_apply_leave);
+
         findViews();
         setLeaveSpinner();
     }
@@ -126,6 +128,9 @@ public class ApplyLeaveActivity extends AppCompatActivity {
         backBtn.setOnClickListener(view -> {
             finish();
         });
+        backBtn1.setOnClickListener(view -> {
+            finish();
+        });
     }
 
     private void addLeave(LeaveData leaveData, String uid) {
@@ -189,6 +194,7 @@ public class ApplyLeaveActivity extends AppCompatActivity {
         leaveSpinner = findViewById(R.id.leave_spinner);
         applyBtn = findViewById(R.id.apply_leave_btn);
         backBtn = findViewById(R.id.back_btn);
+        backBtn1 = findViewById(R.id.back_btn_1);
 
         progressBar = findViewById(R.id.progress_bar);
 

@@ -118,6 +118,16 @@
         android:background="@drawable/rounded_rectangle_btn"
         android:text="Submit"
         app:backgroundTint="@null" />
+    <Button
+        android:id="@+id/back_btn_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/rounded_rectangle_btn"
+        android:text="Back"
+        app:backgroundTint="@null" />
 
 </LinearLayout>
 
