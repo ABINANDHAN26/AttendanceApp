@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -48,7 +49,7 @@ public class GenerateReport {
     private List<UserData> userDataList;
 
     private Map<String, List<TimeData>> userReportData = new HashMap<>();
-
+    private static String TAG = "TAG";
     public GenerateReport(Context context, String monthYear, boolean onlyToday) {
         this.context = context;
         this.monthYear = monthYear;
@@ -61,17 +62,31 @@ public class GenerateReport {
     }
 
     private void getUserData() {
+        Log.i(TAG, "getUserData: ");
         FirebaseFirestore.getInstance().collection("Data").get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        Log.i(TAG, "getUserData: got user data");
                         QuerySnapshot result = task.getResult();
                         userDataList = result.toObjects(UserData.class);
                         getTimeData();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "onFailure: error gettinhg user data");
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        String stackTraceString = sw.toString();
+                        saveErrorToTextFile("" + e.getMessage() + "\n" + stackTraceString + "\n");
+                        e.printStackTrace();
                     }
                 });
     }
 
     private void getTimeData() {
+        Log.i(TAG, "getTimeData: ");
         String date = getDate();
 //        String monthYear = date.substring(date.indexOf("-") + 1);
 //        monthYear = monthYear.replace("-", "");
@@ -82,6 +97,7 @@ public class GenerateReport {
             FirebaseFirestore.getInstance().collection("TimeData").document(userData.getUserId())
                     .collection(monthYear).get().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
+                            Log.i(TAG, "getTimeData: got time data");
                             List<TimeData> timeDataList = task.getResult().toObjects(TimeData.class);
                             userReportData.put(userData.getUserName(), timeDataList);
 
@@ -92,6 +108,7 @@ public class GenerateReport {
                                     else
                                         generateRep();
                                 } catch (FileNotFoundException e) {
+                                    Log.i(TAG, "getTimeData: errir getting tiome data");
                                     StringWriter sw = new StringWriter();
                                     PrintWriter pw = new PrintWriter(sw);
                                     e.printStackTrace(pw);
@@ -108,6 +125,7 @@ public class GenerateReport {
     }
 
     private void generateRep() throws FileNotFoundException {
+        Log.i(TAG, "generateRep: generating report");
         String[] currentDateTime = Util.getCurrentDateTime();
         String date = currentDateTime[0].replace("-", "_");
         String fileName = "Report_" + date + ".pdf";
@@ -127,7 +145,7 @@ public class GenerateReport {
         table.addCell(createCell("Present Days", true));
         table.addCell(createCell("Absent Days", true));
         table.addCell(createCell("Salary", true));
-
+        Log.i(TAG, "generateRep: data size: "+keys.size());
         for (String key : keys) {
             List<TimeData> tempTimeList = userReportData.get(key);
             if (tempTimeList == null || tempTimeList.isEmpty())
@@ -186,6 +204,11 @@ public class GenerateReport {
             writer.close();
             Log.i("TAG", "Error message saved to " + filePath);
         } catch (IOException e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String stackTraceString = sw.toString();
+            e.printStackTrace();
             Log.e("TAG", "Error saving error message: " + e.getLocalizedMessage());
         }
     }
@@ -225,6 +248,12 @@ public class GenerateReport {
         try {
             generateRep(dailyRep);
         } catch (FileNotFoundException e) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String stackTraceString = sw.toString();
+            saveErrorToTextFile("" + e.getMessage() + "\n" + stackTraceString + "\n");
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         Log.i("TAG", "todayReport: "+dailyRep);
